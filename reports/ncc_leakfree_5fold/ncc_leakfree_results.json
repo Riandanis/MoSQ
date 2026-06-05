@@ -1,0 +1,102 @@
+{
+  "n_folds": 5,
+  "fold_results": [
+    {
+      "fold": 1,
+      "train_celllines": 798,
+      "test_celllines": 199,
+      "train_samples": 139882,
+      "val_samples": 27976,
+      "test_samples": 34059,
+      "r2": 0.6980496048927307,
+      "pearson_r": 0.8431114554405212,
+      "spearman_r": 0.8068549309827002,
+      "rmse": 1.5152474945908645,
+      "mae": 1.1190656423568726
+    },
+    {
+      "fold": 2,
+      "train_celllines": 798,
+      "test_celllines": 199,
+      "train_samples": 138744,
+      "val_samples": 27748,
+      "test_samples": 35197,
+      "r2": 0.6899323463439941,
+      "pearson_r": 0.8404930233955383,
+      "spearman_r": 0.8061630778213755,
+      "rmse": 1.5507416612006415,
+      "mae": 1.144460916519165
+    },
+    {
+      "fold": 3,
+      "train_celllines": 799,
+      "test_celllines": 199,
+      "train_samples": 139165,
+      "val_samples": 27833,
+      "test_samples": 34777,
+      "r2": 0.7090945243835449,
+      "pearson_r": 0.8514381647109985,
+      "spearman_r": 0.8232155444194796,
+      "rmse": 1.4931863367728333,
+      "mae": 1.0964527130126953
+    },
+    {
+      "fold": 4,
+      "train_celllines": 798,
+      "test_celllines": 199,
+      "train_samples": 139164,
+      "val_samples": 27832,
+      "test_samples": 34777,
+      "r2": 0.7065615653991699,
+      "pearson_r": 0.8445733785629272,
+      "spearman_r": 0.8111243875149584,
+      "rmse": 1.4911587349398707,
+      "mae": 1.1078321933746338
+    },
+    {
+      "fold": 5,
+      "train_celllines": 796,
+      "test_celllines": 202,
+      "train_samples": 138810,
+      "val_samples": 27762,
+      "test_samples": 35132,
+      "r2": 0.6941244602203369,
+      "pearson_r": 0.8391686677932739,
+      "spearman_r": 0.8061063023680374,
+      "rmse": 1.5491145712123529,
+      "mae": 1.1528671979904175
+    }
+  ],
+  "summary": {
+    "fold": 3.0,
+    "fold_std": 1.4142135623730951,
+    "train_celllines": 797.8,
+    "train_celllines_std": 0.9797958971132713,
+    "test_celllines": 199.6,
+    "test_celllines_std": 1.2,
+    "train_samples": 139153.0,
+    "train_samples_std": 404.1376003293928,
+    "val_samples": 27830.2,
+    "val_samples_std": 80.84157346316313,
+    "test_samples": 34788.4,
+    "test_samples_std": 404.3016695488655,
+    "r2": 0.6995525002479553,
+    "r2_std": 0.007272508412153654,
+    "pearson_r": 0.8437569379806519,
+    "pearson_r_std": 0.004284619673863478,
+    "spearman_r": 0.8106928486213102,
+    "spearman_r_std": 0.006531293558007127,
+    "rmse": 1.5198897597433128,
+    "rmse_std": 0.025946192935672192,
+    "mae": 1.1241357326507568,
+    "mae_std": 0.021431150154138944
+  },
+  "config": {
+    "pretrain_epochs": 15,
+    "finetune_epochs": 10,
+    "batch_size": 256,
+    "base_lr": 0.0001,
+    "qformer_lr_ratio": 0.2,
+    "checkpoint": "/workspace/volume/Gastro_transformers/gastro_v5/checkpoints_save/checkpoints_CLRNA/pretrained.pt"
+  }
+}

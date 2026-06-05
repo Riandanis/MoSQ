@@ -1,0 +1,95 @@
+{
+  "n_folds": 5,
+  "fold_results": [
+    {
+      "fold": 1,
+      "train_drugs": 172,
+      "test_drugs": 43,
+      "train_samples": 138912,
+      "test_samples": 35030,
+      "r2": 0.1277933120727539,
+      "pearson_r": 0.47326037287712097,
+      "spearman_r": 0.4129418095368402,
+      "rmse": 2.4970989561321573,
+      "mae": 2.00822377204895
+    },
+    {
+      "fold": 2,
+      "train_drugs": 172,
+      "test_drugs": 43,
+      "train_samples": 138983,
+      "test_samples": 34959,
+      "r2": -0.00781869888305664,
+      "pearson_r": 0.37878158688545227,
+      "spearman_r": 0.3592706610438676,
+      "rmse": 2.5373765248290727,
+      "mae": 1.9111436605453491
+    },
+    {
+      "fold": 3,
+      "train_drugs": 172,
+      "test_drugs": 43,
+      "train_samples": 139063,
+      "test_samples": 34879,
+      "r2": -0.10935378074645996,
+      "pearson_r": 0.300857275724411,
+      "spearman_r": 0.27118428673537986,
+      "rmse": 2.5695419315940757,
+      "mae": 1.9615057706832886
+    },
+    {
+      "fold": 4,
+      "train_drugs": 172,
+      "test_drugs": 43,
+      "train_samples": 139336,
+      "test_samples": 34606,
+      "r2": 0.1423894166946411,
+      "pearson_r": 0.42228108644485474,
+      "spearman_r": 0.3598275990175302,
+      "rmse": 2.9626078461279626,
+      "mae": 2.2999625205993652
+    },
+    {
+      "fold": 5,
+      "train_drugs": 172,
+      "test_drugs": 43,
+      "train_samples": 139474,
+      "test_samples": 34468,
+      "r2": 0.2178431749343872,
+      "pearson_r": 0.5168421268463135,
+      "spearman_r": 0.4478132066854064,
+      "rmse": 2.586926228029152,
+      "mae": 2.0360641479492188
+    }
+  ],
+  "summary": {
+    "fold": 3.0,
+    "fold_std": 1.4142135623730951,
+    "train_drugs": 172.0,
+    "train_drugs_std": 0.0,
+    "test_drugs": 43.0,
+    "test_drugs_std": 0.0,
+    "train_samples": 139153.6,
+    "train_samples_std": 215.22509147401937,
+    "test_samples": 34788.4,
+    "test_samples_std": 215.22509147401937,
+    "r2": 0.07417068481445313,
+    "r2_std": 0.11711059256036786,
+    "pearson_r": 0.4184044897556305,
+    "pearson_r_std": 0.07496864180347332,
+    "spearman_r": 0.3702075126038048,
+    "spearman_r_std": 0.05980270976760117,
+    "rmse": 2.630710297342484,
+    "rmse_std": 0.16874701785535792,
+    "mae": 2.0433799743652346,
+    "mae_std": 0.1351398614996083
+  },
+  "config": {
+    "pretrain_epochs": 15,
+    "finetune_epochs": 10,
+    "batch_size": 256,
+    "n_folds": 5,
+    "seed": 42,
+    "device": "cuda:1"
+  }
+}

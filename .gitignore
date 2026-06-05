@@ -10,6 +10,7 @@ build/
 # Jupyter
 .ipynb_checkpoints/
 *.ipynb
+!notebooks/*.ipynb
 
 # Checkpoint weight files (too large for git — place manually after download)
 saved_checkpoints/*.pt
@@ -22,8 +23,10 @@ data/*
 !data/ccle_rna_for_ic50.csv
 checkpoints_save/
 logs/
-reports/
 figures/
+
+# reports/ is tracked — contains result JSON files for notebooks
+# (only *.json files are stored; large outputs and figures are not)
 
 # Environments
 .venv/
