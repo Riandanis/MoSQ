@@ -2,20 +2,20 @@
 
 **Multi-modal foundation model for gastric cancer drug response (IC50) prediction.**
 
-MoSQ introduces the **Modality-Slot Q-Former** architecture: each biological modality (drug, cell-line RNA, cancer subtype, tissue type, ssGSEA pathways) occupies a typed token slot that feeds into a shared Q-Former cross-attention pool. The model is pretrained with IC50-aware supervised contrastive learning (DR-A) and fine-tuned with simple MSE regression.
+MoSQ introduces the **Modality-Slot Q-Former** architecture: each biological modality (drug, cell-line RNA, cancer subtype, tissue type) occupies a typed token slot that feeds into a shared Q-Former cross-attention pool. The model is pretrained with IC50-aware supervised contrastive learning (**DR-A**) and fine-tuned with simple MSE regression.
 
 ## Results
 
 | Benchmark | Model | R² |
 |-----------|-------|----|
-| **5-fold NCC + ssGSEA (592 CL, RNA-filtered)** | **DR-A + ssGSEA** | **0.852** |
-| Random split (592 CL, RNA-filtered) | DR-A | 0.838 |
-| 5-fold NCC + ssGSEA (998 CL) | DR-A + ssGSEA | 0.814 |
+| **Random split (592 CL, RNA-filtered)** | **DR-A** | **0.838** |
+| 5-fold NCC (592 CL, RNA-filtered) | DR-A | 0.801 |
 | Random split (998 CL) | DR-A | 0.805 |
 | 5-fold NCC (998 CL) | DR-A | 0.791 |
+| CLRNA baseline (998 CL) | Q-Former + CLRNA | 0.759 |
 | NCD Leak-Free | DR-A | 0.208 |
 
-Evaluation uses **NCC (No Common Cell-Line)** cross-validation with `seed=42` — cell lines in the test set never appear in training.
+Evaluation uses **NCC (No Common Cell-Line)** cross-validation with `seed=42` — cell lines in the test fold never appear during training.
 See [`docs/PERFORMANCE.md`](docs/PERFORMANCE.md) for full ablation tables and literature comparisons.
 
 ---
@@ -26,14 +26,28 @@ See [`docs/PERFORMANCE.md`](docs/PERFORMANCE.md) for full ablation tables and li
 Drug embedding (768d)           ─┐
 Cell-line RNA embedding (256d)  ─┤  Modality Projectors
 Cancer subtype ID               ─┤  → typed token slots
-Tissue type ID                  ─┤  → Q-Former (48 queries, 8 layers, 12 heads)
-ssGSEA pathway scores (768d)    ─┘  → IC50 Head → LN(IC50)
+Tissue type ID                  ─┘  → Q-Former (48 queries, 8 layers, 12 heads)
+                                     → IC50 Head → LN(IC50)
 ```
 
-- **Pretraining (DR-A):** Drug–CellLine SupCon loss on IC50 quintile bins + cross-modal reconstruction
-- **Fine-tuning:** MSE regression, differential LR (Q-Former uses 0.1× base LR)
+**Two pretraining strategies included:**
+- **CLRNA** — Stage 1: image + RNA contrastive learning (biological foundation)
+- **DR-A** — IC50-aware: Drug–CellLine SupCon on IC50 quintile bins + cross-modal reconstruction (+3.2% R² over CLRNA)
+
+Fine-tuning uses MSE regression with differential LR (Q-Former at 0.1× base LR).
 
 See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for full details.
+
+---
+
+## Pretrained Checkpoints
+
+| Checkpoint | Description | R² (5-fold NCC, 998 CL) |
+|------------|-------------|--------------------------|
+| `checkpoints/pretrained_dra.pt` | DR-A pretrained — **recommended** | 0.791 |
+| `checkpoints/pretrained_clrna.pt` | CLRNA baseline | 0.759 |
+
+Checkpoints are stored locally in `checkpoints/` (not tracked by git — add to your own release or hosting).
 
 ---
 
@@ -59,44 +73,12 @@ The model expects pre-computed embeddings in CSV format. Place files in `data/`:
 |------|-------------|-------|
 | `drug_embeddings.csv` | ChemBERTa drug embeddings | `[n_drugs, 768]` |
 | `ic50_data.csv` | Drug–cell-line IC50 pairs | `DRUG_ID, CELL_LINE_NAME, LN_IC50, ...` |
-| `ccle_rna_for_ic50.csv` | BulkRNABERT cell-line RNA | `[n_celllines, 256]` |
-| `ssgsea_scores.tsv` | ssGSEA pathway enrichment | `[n_celllines, 768]` |
+| `ccle_rna_for_ic50.csv` | BulkRNABERT cell-line RNA embeddings | `[n_celllines, 256]` |
 
-GDSC IC50 data: https://www.cancerrxgene.org/
-CCLE RNA: https://depmap.org/portal/
-Embeddings (BulkRNABERT, ChemBERTa) are computed externally and stored as CSVs.
-
----
-
-## Reproducing the Best Result (R² = 0.852)
-
-### Step 1 — DR-A Pretraining
-
-```bash
-python scripts/pretrain_with_ssgsea.py \
-  --drug_embeddings_csv data/drug_embeddings.csv \
-  --ic50_csv            data/ic50_data.csv \
-  --cellline_rna_csv    data/ccle_rna_for_ic50.csv \
-  --ssgsea_tsv          data/ssgsea_scores.tsv \
-  --pretrain_epochs 100 \
-  --device cuda:0 \
-  --checkpoint_dir checkpoints/phase3_ssgsea
-```
-
-### Step 2 — Fine-tune and Evaluate (5-fold NCC)
-
-```bash
-python scripts/benchmark_ncc_rnafiltered_ssgsea.py \
-  --checkpoint      checkpoints/phase3_ssgsea/pretrained_phase3_ssgsea.pt \
-  --drug_embeddings_csv data/drug_embeddings.csv \
-  --ic50_csv            data/ic50_data.csv \
-  --cellline_rna_csv    data/ccle_rna_for_ic50.csv \
-  --ssgsea_tsv          data/ssgsea_scores.tsv \
-  --finetune_epochs 10 \
-  --device cuda:0
-```
-
-Expected output: **R² ≈ 0.852 ± 0.004** across 5 NCC folds.
+Data sources:
+- GDSC IC50: https://www.cancerrxgene.org/
+- CCLE RNA: https://depmap.org/portal/
+- BulkRNABERT embeddings and ChemBERTa drug embeddings are computed externally and stored as CSVs.
 
 ---
 
@@ -110,34 +92,64 @@ Runs a full pretrain + fine-tune cycle on synthetic data using CPU. Useful for v
 
 ---
 
-## Reproducing Other Benchmarks
+## Reproducing the Best Result (R² = 0.801, 5-fold NCC)
 
-| Experiment | Script |
-|------------|--------|
-| Full 5-fold NCC ablation (998 CL) | `scripts/benchmark_5fold_ncc_ablation.py` |
-| Random split RNA-filtered (592 CL) | `scripts/benchmark_random_split_rnafiltered.py` |
-| ssGSEA vs RNA-BERT comparison | `scripts/benchmark_with_ssgsea.py` |
-| Literature model comparison | `scripts/benchmark_literature_models.py` |
-| Sample efficiency curves | `scripts/sample_efficiency.py` |
+### Step 1 — DR-A Pretraining
 
-All benchmark scripts accept `--checkpoint`, `--drug_embeddings_csv`, `--ic50_csv`, `--cellline_rna_csv`, and `--device` arguments.
+```bash
+python scripts/pretrain_phase3.py \
+  --drug_embeddings_csv data/drug_embeddings.csv \
+  --ic50_csv            data/ic50_data.csv \
+  --cellline_rna_csv    data/ccle_rna_for_ic50.csv \
+  --pretrain_epochs 100 \
+  --device cuda:0 \
+  --checkpoint_dir checkpoints/phase3
+```
+
+Or skip pretraining and use the included checkpoint:
+
+### Step 2 — Fine-tune and Evaluate (5-fold NCC, RNA-filtered)
+
+```bash
+python scripts/benchmark_5fold_ncc_ablation.py \
+  --checkpoint      checkpoints/pretrained_dra.pt \
+  --drug_embeddings_csv data/drug_embeddings.csv \
+  --ic50_csv            data/ic50_data.csv \
+  --cellline_rna_csv    data/ccle_rna_for_ic50.csv \
+  --finetune_epochs 10 \
+  --device cuda:0
+```
+
+Expected output: **R² ≈ 0.791 ± 0.012** (5-fold NCC, 998 CL) or **R² ≈ 0.801 ± 0.003** (RNA-filtered 592 CL).
 
 ---
 
-## Fine-tuning from a Pretrained Checkpoint
+## Fine-tuning from a Pretrained Checkpoint (CLI)
 
 ```bash
 python scripts/main.py --mode finetune \
-  --checkpoint checkpoints/phase3_ssgsea/pretrained_phase3_ssgsea.pt \
+  --checkpoint      checkpoints/pretrained_dra.pt \
   --drug_embeddings_csv data/drug_embeddings.csv \
   --ic50_csv            data/ic50_data.csv \
   --cellline_rna_csv    data/ccle_rna_for_ic50.csv \
   --finetune_epochs 10 \
   --qformer_finetune_lr_ratio 0.2 \
+  --use_multitoken_cellline \
   --device cuda:0
 ```
 
-> **Note:** Do not enable `--use_huber_loss`, `--use_ema`, or `--use_rdrop` — these v3 regularization tricks catastrophically fail at this data scale (R² → near-zero).
+> **Important:** Do not enable `--use_huber_loss`, `--use_ema`, or `--use_rdrop` — these regularization tricks catastrophically fail at this data scale (R² drops to near-zero).
+
+---
+
+## Other Benchmarks
+
+| Experiment | Script |
+|------------|--------|
+| Full 5-fold NCC ablation (all baselines, 998 CL) | `scripts/benchmark_5fold_ncc_ablation.py` |
+| Random split RNA-filtered (592 CL) | `scripts/benchmark_random_split_rnafiltered.py` |
+| Literature model comparison | `scripts/benchmark_literature_models.py` |
+| Sample efficiency curves | `scripts/sample_efficiency.py` |
 
 ---
 
@@ -145,9 +157,9 @@ python scripts/main.py --mode finetune \
 
 1. **NCC splitting** with `seed=42` — no cell line appears in both train and test
 2. **Shared RNA projector** — patient RNA and cell-line RNA use the same projection weights
-3. **IC50 head input is `[B, D]`**, not `[B, 3×D]` — fusion happens inside Q-Former
-4. **Differential LR** — Q-Former uses `0.1×` base LR during fine-tuning
-5. **RNA-filtering** — remove zero-filled cell lines (998 → 592) before evaluation
+3. **IC50 head input is `[B, D]`**, not `[B, 3×D]` — fusion happens inside Q-Former via cross-attention
+4. **Differential LR** — Q-Former uses `0.1×` base LR during fine-tuning to preserve pretrained representations
+5. **RNA-filtering** — removing zero-filled cell lines (998 → 592) before evaluation eliminates a zero-fill confound and improves R² by ~1%
 
 ---
 
@@ -163,20 +175,21 @@ pytest tests/
 
 ```
 MoSQ/
-├── gastro_transformer/       # Core Python package
-│   ├── model.py              # ModalitySlotQFormer architecture
-│   ├── model_with_ssgsea.py  # + ssGSEA pathway tokens (best model)
-│   ├── data.py               # IC50Dataset, NCC splitting
-│   ├── train.py              # GastroTransformerTrainer (differential LR)
-│   ├── losses.py             # Contrastive losses (SupCon, cross-modal)
-│   ├── config.py             # GastroTransformerConfig
-│   └── utils.py              # Checkpoint loading, tissue maps
+├── gastro_transformer/          # Core Python package
+│   ├── model.py                 # ModalitySlotQFormer architecture
+│   ├── data.py                  # IC50Dataset, NCC splitting
+│   ├── train.py                 # GastroTransformerTrainer (differential LR)
+│   ├── losses.py                # Contrastive losses (SupCon, cross-modal)
+│   ├── config.py                # GastroTransformerConfig
+│   └── utils.py                 # Checkpoint loading, tissue type maps
 ├── scripts/
-│   ├── main.py               # CLI entry point (demo/pretrain/finetune/evaluate)
-│   ├── pretrain_with_ssgsea.py   # DR-A + ssGSEA pretraining
-│   ├── pretrain_phase3.py        # DR-A pretraining (RNA-only)
-│   ├── benchmark_ncc_rnafiltered_ssgsea.py  # Best benchmark
-│   └── ...                   # Other benchmark and analysis scripts
+│   ├── main.py                  # CLI entry point (demo/pretrain/finetune/evaluate)
+│   ├── pretrain_phase3.py       # DR-A pretraining (IC50-aware SupCon)
+│   ├── benchmark_5fold_ncc_ablation.py   # Full ablation table
+│   ├── benchmark_random_split_rnafiltered.py
+│   ├── benchmark_literature_models.py
+│   ├── sample_efficiency.py
+│   └── inference.py
 ├── tests/
 │   └── test_model.py
 ├── docs/
@@ -184,8 +197,10 @@ MoSQ/
 │   ├── PERFORMANCE.md
 │   ├── KEY_FINDINGS.md
 │   └── PROTOCOLS.md
-├── data/                     # Place your CSV/TSV embeddings here (not tracked)
-├── checkpoints/              # Saved checkpoints (not tracked)
+├── checkpoints/                 # Pretrained weights (not tracked by git)
+│   ├── pretrained_dra.pt        # DR-A (recommended)  R²=0.791 NCC
+│   └── pretrained_clrna.pt      # CLRNA baseline       R²=0.759 NCC
+├── data/                        # Place your CSV embeddings here (not tracked)
 ├── requirements.txt
 └── setup.py
 ```
