@@ -44,10 +44,18 @@ See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for full details.
 
 | Checkpoint | Description | R² (5-fold NCC, 998 CL) |
 |------------|-------------|--------------------------|
-| `checkpoints/pretrained_dra.pt` | DR-A pretrained — **recommended** | 0.791 |
-| `checkpoints/pretrained_clrna.pt` | CLRNA baseline | 0.759 |
+| `saved_checkpoints/pretrained_dra.pt` | DR-A pretrained — **recommended** | 0.791 |
+| `saved_checkpoints/pretrained_clrna.pt` | CLRNA baseline | 0.759 |
 
-Checkpoints are stored locally in `checkpoints/` (not tracked by git — add to your own release or hosting).
+The `saved_checkpoints/` directory is tracked in the repo (the `.pt` weight files are too large for git and are gitignored). Download the weights and place them there:
+
+```bash
+# Download from:
+# https://drive.google.com/drive/folders/129FU49n569OiQjhV9WJC1mhqkOou-lTa?usp=sharing
+# then place at:
+saved_checkpoints/pretrained_dra.pt
+saved_checkpoints/pretrained_clrna.pt
+```
 
 ---
 
@@ -104,14 +112,14 @@ python scripts/pretrain_phase3.py \
   --cellline_rna_csv    data/ccle_rna_for_ic50.csv \
   --pretrain_epochs 100 \
   --device cuda:0 \
-  --checkpoint_dir checkpoints/phase3
+  --checkpoint_dir saved_checkpoints/phase3
 ```
 
 ### Step 2 — Fine-tune and Evaluate (5-fold NCC)
 
 ```bash
 python scripts/benchmark_5fold_ncc_ablation.py \
-  --checkpoint          checkpoints/pretrained_dra.pt \
+  --checkpoint          saved_checkpoints/pretrained_dra.pt \
   --drug_embeddings_csv data/drug_embeddings.csv \
   --ic50_csv            data/ic50_data.csv \
   --cellline_rna_csv    data/ccle_rna_for_ic50.csv \
@@ -127,7 +135,7 @@ Expected output: **R² ≈ 0.791 ± 0.012** (5-fold NCC, 998 CL) or **R² ≈ 0.
 
 ```bash
 python scripts/main.py --mode finetune \
-  --checkpoint          checkpoints/pretrained_dra.pt \
+  --checkpoint          saved_checkpoints/pretrained_dra.pt \
   --drug_embeddings_csv data/drug_embeddings.csv \
   --ic50_csv            data/ic50_data.csv \
   --cellline_rna_csv    data/ccle_rna_for_ic50.csv \
@@ -196,7 +204,7 @@ MoSQ/
 │   ├── PERFORMANCE.md
 │   ├── KEY_FINDINGS.md
 │   └── PROTOCOLS.md
-├── checkpoints/                 # Pretrained weights (not tracked by git)
+├── saved_checkpoints/           # Place .pt files here after download (gitignored)
 │   ├── pretrained_dra.pt        # DR-A (recommended)  R²=0.791 NCC
 │   └── pretrained_clrna.pt      # CLRNA baseline       R²=0.759 NCC
 ├── data/                        # Place your CSV embeddings here (not tracked)

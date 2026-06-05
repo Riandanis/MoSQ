@@ -11,7 +11,8 @@ build/
 .ipynb_checkpoints/
 *.ipynb
 
-# Checkpoints (large binaries — not tracked)
+# Checkpoint weight files (too large for git — place manually after download)
+saved_checkpoints/*.pt
 checkpoints/
 
 # Data: ignore everything except the three preprocessed experiment files
