@@ -65,20 +65,21 @@ pip install -e .
 
 ---
 
-## Data Preparation
+## Data
 
-The model expects pre-computed embeddings in CSV format. Place files in `data/`:
+The three preprocessed embedding files required for experiment reproduction are **included in this repository** under `data/`:
 
 | File | Description | Shape |
 |------|-------------|-------|
-| `drug_embeddings.csv` | ChemBERTa drug embeddings | `[n_drugs, 768]` |
-| `ic50_data.csv` | Drug–cell-line IC50 pairs | `DRUG_ID, CELL_LINE_NAME, LN_IC50, ...` |
-| `ccle_rna_for_ic50.csv` | BulkRNABERT cell-line RNA embeddings | `[n_celllines, 256]` |
+| `data/drug_embeddings.csv` | ChemBERTa-2 drug embeddings | `[n_drugs, 768]` |
+| `data/ic50_data.csv` | GDSC drug–cell-line IC50 pairs (LN_IC50) | `DRUG_ID, CELL_LINE_NAME, LN_IC50, ...` |
+| `data/ccle_rna_for_ic50.csv` | BulkRNABERT cell-line RNA embeddings | `[n_celllines, 256]` |
 
-Data sources:
-- GDSC IC50: https://www.cancerrxgene.org/
-- CCLE RNA: https://depmap.org/portal/
-- BulkRNABERT embeddings and ChemBERTa drug embeddings are computed externally and stored as CSVs.
+Raw source data (not included):
+- GDSC IC50 measurements: https://www.cancerrxgene.org/
+- CCLE RNA-seq: https://depmap.org/portal/
+- BulkRNABERT: pre-trained RNA language model used to produce the 256-d cell-line embeddings
+- ChemBERTa-2: pre-trained chemical language model used to produce the 768-d drug embeddings
 
 ---
 
@@ -94,7 +95,7 @@ Runs a full pretrain + fine-tune cycle on synthetic data using CPU. Useful for v
 
 ## Reproducing the Best Result (R² = 0.801, 5-fold NCC)
 
-### Step 1 — DR-A Pretraining
+### Step 1 — DR-A Pretraining  *(or skip — use the included checkpoint)*
 
 ```bash
 python scripts/pretrain_phase3.py \
@@ -106,13 +107,11 @@ python scripts/pretrain_phase3.py \
   --checkpoint_dir checkpoints/phase3
 ```
 
-Or skip pretraining and use the included checkpoint:
-
-### Step 2 — Fine-tune and Evaluate (5-fold NCC, RNA-filtered)
+### Step 2 — Fine-tune and Evaluate (5-fold NCC)
 
 ```bash
 python scripts/benchmark_5fold_ncc_ablation.py \
-  --checkpoint      checkpoints/pretrained_dra.pt \
+  --checkpoint          checkpoints/pretrained_dra.pt \
   --drug_embeddings_csv data/drug_embeddings.csv \
   --ic50_csv            data/ic50_data.csv \
   --cellline_rna_csv    data/ccle_rna_for_ic50.csv \
@@ -128,7 +127,7 @@ Expected output: **R² ≈ 0.791 ± 0.012** (5-fold NCC, 998 CL) or **R² ≈ 0.
 
 ```bash
 python scripts/main.py --mode finetune \
-  --checkpoint      checkpoints/pretrained_dra.pt \
+  --checkpoint          checkpoints/pretrained_dra.pt \
   --drug_embeddings_csv data/drug_embeddings.csv \
   --ic50_csv            data/ic50_data.csv \
   --cellline_rna_csv    data/ccle_rna_for_ic50.csv \

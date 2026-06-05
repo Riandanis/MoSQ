@@ -11,9 +11,14 @@ build/
 .ipynb_checkpoints/
 *.ipynb
 
-# Data & checkpoints (large files — not tracked)
-data/
+# Checkpoints (large binaries — not tracked)
 checkpoints/
+
+# Data: ignore everything except the three preprocessed experiment files
+data/*
+!data/drug_embeddings.csv
+!data/ic50_data.csv
+!data/ccle_rna_for_ic50.csv
 checkpoints_save/
 logs/
 reports/
