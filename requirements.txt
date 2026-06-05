@@ -1,0 +1,27 @@
+# MoSQ — Modality-Slot Q-Former for Gastric Cancer Drug Response Prediction
+# Install PyTorch separately per your CUDA version: https://pytorch.org/get-started/locally/
+# e.g. pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
+
+# Core
+torch>=2.0.0
+numpy>=1.23.0
+pandas>=1.5.0
+
+# Machine learning / cross-validation
+scikit-learn>=1.2.0
+scipy>=1.10.0
+xgboost>=1.7.0
+
+# Visualization
+matplotlib>=3.6.0
+seaborn>=0.12.0
+
+# Utilities
+tqdm>=4.65.0
+psutil>=5.9.0
+
+# Optional: experiment tracking
+# wandb>=0.15.0
+
+# Development / testing
+pytest>=7.0.0
