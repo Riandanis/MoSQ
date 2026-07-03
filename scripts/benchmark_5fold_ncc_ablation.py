@@ -15,7 +15,8 @@ All use identical 5-fold NCC splits (seed=42).
 """
 
 import sys
-sys.path.insert(0, '/workspace/volume/Gastro_transformers/gastro_v5')
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import argparse
 import json
@@ -48,12 +49,12 @@ from gastro_transformer.train import EMAModel
 logging.basicConfig(level=logging.INFO, format='%(levelname)s:%(name)s:%(message)s')
 logger = logging.getLogger(__name__)
 
-ROOT = '/workspace/volume/Gastro_transformers/gastro_v5/'
-DRUG_CSV = ROOT + 'data/processed/drug_embeddings_20260224.csv'
-IC50_CSV = ROOT + 'data/processed/ic50_data_20260224.csv'
-RNA_CSV  = ROOT + 'data/processed/ccle_rna_for_ic50.csv'
-CLRNA_CKPT = ROOT + 'checkpoints_save/checkpoints_CLRNA/pretrained.pt'
-PHASE3_CKPT = ROOT + 'checkpoints_save/checkpoints_phase3/pretrained_phase3.pt'
+ROOT = Path(__file__).resolve().parent.parent
+DRUG_CSV = str(ROOT / 'data/drug_embeddings.csv')
+IC50_CSV = str(ROOT / 'data/ic50_data.csv')
+RNA_CSV  = str(ROOT / 'data/ccle_rna_for_ic50.csv')
+CLRNA_CKPT = str(ROOT / 'saved_checkpoints/pretrained_clrna.pt')
+PHASE3_CKPT = str(ROOT / 'saved_checkpoints/pretrained_dra.pt')
 
 # Feature dimensions for fair comparison
 NUM_CANCER_TYPES = 30
@@ -529,7 +530,7 @@ def main():
     parser.add_argument('--batch_size', type=int, default=256)
     parser.add_argument('--n_folds', type=int, default=5)
     parser.add_argument('--output_dir', type=str,
-                        default=ROOT + 'reports/5fold_ncc_ablation')
+                        default=str(ROOT / 'reports/5fold_ncc_ablation'))
     args = parser.parse_args()
 
     device = args.device
