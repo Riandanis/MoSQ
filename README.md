@@ -103,31 +103,41 @@ Runs a full pretrain + fine-tune cycle on synthetic data using CPU. Useful for v
 
 ## Reproducing the Best Result (R² = 0.801, 5-fold NCC)
 
+Both reproduction scripts resolve the embedding CSVs in `data/` and the
+checkpoints in `saved_checkpoints/` automatically (relative to the repo root),
+so you do **not** pass data or checkpoint paths on the command line.
+
 ### Step 1 — DR-A Pretraining  *(or skip — use the included checkpoint)*
+
+Starts from the CLRNA (Stage 1) checkpoint and writes the DR-A checkpoint into
+`--output_dir`:
 
 ```bash
 python scripts/pretrain_phase3.py \
-  --drug_embeddings_csv data/drug_embeddings.csv \
-  --ic50_csv            data/ic50_data.csv \
-  --cellline_rna_csv    data/ccle_rna_for_ic50.csv \
-  --pretrain_epochs 100 \
+  --checkpoint saved_checkpoints/pretrained_clrna.pt \
+  --epochs 100 \
   --device cuda:0 \
-  --checkpoint_dir saved_checkpoints/phase3
+  --output_dir saved_checkpoints/phase3
 ```
 
-### Step 2 — Fine-tune and Evaluate (5-fold NCC)
+This produces `saved_checkpoints/phase3/pretrained_phase3.pt`. Step 2 evaluates
+the included `saved_checkpoints/pretrained_dra.pt` for the DR-A arm — to evaluate
+a checkpoint you just trained, copy it over that file first.
+
+### Step 2 — Fine-tune and Evaluate (5-fold NCC ablation)
+
+This runs the **full ablation** (all baselines plus the DR-A model) under 5-fold
+NCC cross-validation and writes results to `reports/5fold_ncc_ablation/`:
 
 ```bash
 python scripts/benchmark_5fold_ncc_ablation.py \
-  --checkpoint          saved_checkpoints/pretrained_dra.pt \
-  --drug_embeddings_csv data/drug_embeddings.csv \
-  --ic50_csv            data/ic50_data.csv \
-  --cellline_rna_csv    data/ccle_rna_for_ic50.csv \
-  --finetune_epochs 10 \
+  --epochs 10 \
+  --n_folds 5 \
   --device cuda:0
 ```
 
-Expected output: **R² ≈ 0.791 ± 0.012** (5-fold NCC, 998 CL) or **R² ≈ 0.801 ± 0.003** (RNA-filtered 592 CL).
+Expected output: the DR-A arm reaches **R² ≈ 0.791 ± 0.012** (5-fold NCC, 998 CL);
+the RNA-filtered 592-CL variant reaches **R² ≈ 0.801 ± 0.003**.
 
 ---
 

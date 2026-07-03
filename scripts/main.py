@@ -365,7 +365,7 @@ def create_synthetic_data(config: GastroTransformerConfig):
     }
 
 
-def run_demo(config: GastroTransformerConfig):
+def run_demo(config: GastroTransformerConfig, model_version: str = 'v2'):
     """Run demo with synthetic data."""
     logger.info("=" * 60)
     logger.info("DEMO MODE: Testing pipeline with synthetic data")
@@ -376,7 +376,7 @@ def run_demo(config: GastroTransformerConfig):
     config.mixed_precision = False
 
     # Create model
-    model = create_model(config, args.model_version)
+    model = create_model(config, model_version)
     logger.info(f"Model parameters: {model.count_parameters()}")
 
     # Create synthetic data loaders
@@ -519,7 +519,7 @@ def load_real_data(config: GastroTransformerConfig):
     return datasets
 
 
-def run_full_training(config: GastroTransformerConfig):
+def run_full_training(config: GastroTransformerConfig, model_version: str = 'v2'):
     """Run full training pipeline."""
     logger.info("=" * 60)
     logger.info("FULL TRAINING PIPELINE")
@@ -557,7 +557,7 @@ def run_full_training(config: GastroTransformerConfig):
         )
 
     # Create model
-    model = create_model(config, args.model_version)
+    model = create_model(config, model_version)
     logger.info(f"Model parameters: {model.count_parameters()}")
 
     # Create trainer
@@ -599,9 +599,9 @@ def main():
     logger.info(f"Config: {config}")
 
     if args.mode == 'demo':
-        run_demo(config)
+        run_demo(config, args.model_version)
     elif args.mode == 'train':
-        run_full_training(config)
+        run_full_training(config, args.model_version)
     elif args.mode == 'pretrain':
         datasets = load_real_data(config)
         # Handle pre-split IC50 datasets
