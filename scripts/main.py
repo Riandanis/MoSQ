@@ -8,20 +8,20 @@ Usage:
 
     # Full training pipeline
     python scripts/main.py --mode train \
-        --paired_image_csv data/processed/paired_image_ms-bcpp.csv \
-        --paired_rna_csv data/processed/paired_rna_ms-bcpp.csv \
-        --unpaired_image_csv data/processed/unpaired_image.csv \
-        --unpaired_rna_csv data/processed/unpaired_rna.csv \
-        --drug_embeddings_csv data/processed/drug_embeddings_20260224.csv \
-        --ic50_csv data/processed/ic50_data_20260224.csv \
-        --cellline_rna_csv data/processed/ccle_rna_for_ic50.csv
+        --paired_image_csv data/paired_image_ms-bcpp.csv \
+        --paired_rna_csv data/paired_rna_ms-bcpp.csv \
+        --unpaired_image_csv data/unpaired_image.csv \
+        --unpaired_rna_csv data/unpaired_rna.csv \
+        --drug_embeddings_csv data/drug_embeddings.csv \
+        --ic50_csv data/ic50_data.csv \
+        --cellline_rna_csv data/ccle_rna_for_ic50.csv
 
     # Individual training stages
     python scripts/main.py --mode pretrain
-    python scripts/main.py --mode finetune --checkpoint checkpoints/pretrained.pt
+    python scripts/main.py --mode finetune --checkpoint saved_checkpoints/pretrained_dra.pt
 
     # Evaluate
-    python scripts/main.py --mode evaluate --checkpoint checkpoints/best_model.pt
+    python scripts/main.py --mode evaluate --checkpoint saved_checkpoints/pretrained_dra.pt
 """
 
 import argparse

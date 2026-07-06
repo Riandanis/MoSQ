@@ -27,22 +27,22 @@ from gastro_transformer.utils import load_checkpoint
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Gastro-Transformer v2 Inference')
-    parser.add_argument('--checkpoint', type=str, default='checkpoints_save/checkpoints_CLRNA/best_ic50_model.pt',
+    parser.add_argument('--checkpoint', type=str, default='saved_checkpoints/pretrained_dra.pt',
                         help='Path to model checkpoint')
     parser.add_argument('--paired_image_csv', type=str,
-                        default='data/processed/paired_image_ms-bcpp.csv')
+                        default='data/paired_image_ms-bcpp.csv')
     parser.add_argument('--paired_rna_csv', type=str,
-                        default='data/processed/paired_rna_ms-bcpp.csv')
+                        default='data/paired_rna_ms-bcpp.csv')
     parser.add_argument('--unpaired_image_csv', type=str,
-                        default='data/processed/unpaired_image.csv')
+                        default='data/unpaired_image.csv')
     parser.add_argument('--unpaired_rna_csv', type=str,
-                        default='data/processed/unpaired_rna.csv')
+                        default='data/unpaired_rna.csv')
     parser.add_argument('--drug_embeddings_csv', type=str,
-                        default='data/processed/drug_embeddings_20260224.csv')
+                        default='data/drug_embeddings.csv')
     parser.add_argument('--ic50_csv', type=str,
-                        default='data/processed/ic50_data_20260224.csv')
+                        default='data/ic50_data.csv')
     parser.add_argument('--cellline_rna_csv', type=str,
-                        default='data/processed/ccle_rna_for_ic50.csv')
+                        default='data/ccle_rna_for_ic50.csv')
     parser.add_argument('--device', type=str, default='cuda:1')
     parser.add_argument('--output_dir', type=str, default='reports')
     parser.add_argument('--model_version', type=str, default='v2',

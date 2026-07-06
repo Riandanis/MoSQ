@@ -12,7 +12,8 @@ For context on split types:
 """
 
 import sys
-sys.path.insert(0, '/workspace/volume/Gastro_transformers/gastro_v5')
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import argparse
 import json
@@ -30,7 +31,7 @@ from gastro_transformer.data import DrugEmbeddingDataset, IC50Dataset
 import importlib.util
 _se_spec = importlib.util.spec_from_file_location(
     "sample_efficiency",
-    "/workspace/volume/Gastro_transformers/gastro_v5/scripts/sample_efficiency.py"
+    str(Path(__file__).resolve().parent / "sample_efficiency.py")
 )
 _se = importlib.util.module_from_spec(_se_spec)
 _se_spec.loader.exec_module(_se)
@@ -44,12 +45,12 @@ convert_numpy = _se.convert_numpy
 logging.basicConfig(level=logging.INFO, format='%(levelname)s:%(name)s:%(message)s')
 logger = logging.getLogger(__name__)
 
-ROOT = '/workspace/volume/Gastro_transformers/gastro_v5/'
-DRUG_CSV = ROOT + 'data/processed/drug_embeddings_20260224.csv'
-IC50_CSV = ROOT + 'data/processed/ic50_data_20260224.csv'
-RNA_CSV  = ROOT + 'data/processed/ccle_rna_for_ic50.csv'
-DEFAULT_BASELINE = ROOT + 'checkpoints_save/checkpoints_CLRNA/pretrained.pt'
-DEFAULT_PHASE3 = ROOT + 'checkpoints_save/checkpoints_phase3/pretrained_phase3.pt'
+ROOT = Path(__file__).resolve().parent.parent
+DRUG_CSV = str(ROOT / 'data/drug_embeddings.csv')
+IC50_CSV = str(ROOT / 'data/ic50_data.csv')
+RNA_CSV  = str(ROOT / 'data/ccle_rna_for_ic50.csv')
+DEFAULT_BASELINE = str(ROOT / 'saved_checkpoints/pretrained_clrna.pt')
+DEFAULT_PHASE3 = str(ROOT / 'saved_checkpoints/pretrained_dra.pt')
 
 
 # RNA-Filtered Dataset Wrapper (from benchmark_literature_models.py)
@@ -180,7 +181,7 @@ def main():
     parser.add_argument('--batch_size', type=int, default=256)
     parser.add_argument('--n_folds', type=int, default=5)
     parser.add_argument('--output_dir', type=str,
-                        default=ROOT + 'reports/random_split_5fold_rnafiltered')
+                        default=str(ROOT / 'reports/random_split_5fold_rnafiltered'))
     args = parser.parse_args()
 
     device = args.device

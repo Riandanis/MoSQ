@@ -120,7 +120,7 @@ python scripts/pretrain_phase3.py \
   --output_dir saved_checkpoints/phase3
 ```
 
-This produces `saved_checkpoints/phase3/pretrained_phase3.pt`. Step 2 evaluates
+This produces `saved_checkpoints/phase3/pretrained_dra.pt`. Step 2 evaluates
 the included `saved_checkpoints/pretrained_dra.pt` for the DR-A arm — to evaluate
 a checkpoint you just trained, copy it over that file first.
 

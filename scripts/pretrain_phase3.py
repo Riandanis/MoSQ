@@ -17,7 +17,7 @@ C. Cross-Modal Reconstruction:
 
 Loss: 1.0 * L_contrastive + 0.5 * L_reconstruction
 
-Loads from CLRNA checkpoint (Stage 1), saves pretrained_phase3.pt.
+Loads from CLRNA checkpoint (Stage 1), saves pretrained_dra.pt.
 """
 
 import sys
@@ -461,7 +461,7 @@ def main():
             )
 
     # ---- Save checkpoint ----
-    checkpoint_path = output_dir / 'pretrained_phase3.pt'
+    checkpoint_path = output_dir / 'pretrained_dra.pt'
     checkpoint = {
         'epoch': args.epochs,
         'model_state_dict': model.state_dict(),
