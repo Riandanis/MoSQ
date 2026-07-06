@@ -17,7 +17,8 @@ All use same input features: drug (768d ChemBERTa) + cancer (30d OH) + tissue (2
 """
 
 import sys
-sys.path.insert(0, '/workspace/volume/Gastro_transformers/gastro_v5')
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import argparse
 import json
@@ -42,7 +43,7 @@ from gastro_transformer.train import EMAModel
 import importlib.util
 _se_spec = importlib.util.spec_from_file_location(
     "sample_efficiency",
-    "/workspace/volume/Gastro_transformers/gastro_v5/scripts/sample_efficiency.py"
+    str(Path(__file__).resolve().parent / "sample_efficiency.py")
 )
 _se = importlib.util.module_from_spec(_se_spec)
 _se_spec.loader.exec_module(_se)
@@ -59,12 +60,12 @@ batch_to_features = _se.batch_to_features
 logging.basicConfig(level=logging.INFO, format='%(levelname)s:%(name)s:%(message)s')
 logger = logging.getLogger(__name__)
 
-ROOT = '/workspace/volume/Gastro_transformers/gastro_v5/'
-DRUG_CSV = ROOT + 'data/processed/drug_embeddings_20260224.csv'
-IC50_CSV = ROOT + 'data/processed/ic50_data_20260224.csv'
-RNA_CSV  = ROOT + 'data/processed/ccle_rna_for_ic50.csv'
-DEFAULT_CLRNA = ROOT + 'checkpoints_save/checkpoints_CLRNA/pretrained.pt'
-DEFAULT_PHASE3 = ROOT + 'checkpoints_save/checkpoints_phase3/pretrained_phase3.pt'
+ROOT = Path(__file__).resolve().parent.parent
+DRUG_CSV = str(ROOT / 'data/drug_embeddings.csv')
+IC50_CSV = str(ROOT / 'data/ic50_data.csv')
+RNA_CSV  = str(ROOT / 'data/ccle_rna_for_ic50.csv')
+DEFAULT_CLRNA = str(ROOT / 'saved_checkpoints/pretrained_clrna.pt')
+DEFAULT_PHASE3 = str(ROOT / 'saved_checkpoints/pretrained_dra.pt')
 
 NUM_CANCER_TYPES = 30
 NUM_TISSUE_TYPES = 26
@@ -446,7 +447,7 @@ def main():
     parser.add_argument('--checkpoint_clrna', type=str, default=DEFAULT_CLRNA)
     parser.add_argument('--checkpoint_phase3', type=str, default=DEFAULT_PHASE3)
     parser.add_argument('--output_dir', type=str,
-                        default=ROOT + 'reports/literature_comparison')
+                        default=str(ROOT / 'reports/literature_comparison'))
     args = parser.parse_args()
 
     device = args.device
