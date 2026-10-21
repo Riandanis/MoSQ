@@ -14,6 +14,7 @@ build/
 
 # Checkpoint weight files (too large for git — place manually after download)
 saved_checkpoints/*.pt
+saved_checkpoints/**/*.pt
 checkpoints/
 
 # Data: ignore everything except the three preprocessed experiment files
@@ -21,9 +22,13 @@ data/*
 !data/drug_embeddings.csv
 !data/ic50_data.csv
 !data/ccle_rna_for_ic50.csv
+!data/drug_smiles.csv
 checkpoints_save/
 logs/
-figures/
+# Bare `figures/` matches at any depth. It was silently excluding
+# reports/revision/figures/, i.e. every figure the paper cites, while
+# the comment below claimed figures were committed. Anchor it to the repo root.
+/figures/
 
 # reports/ is tracked — contains result JSON files for notebooks
 # (only *.json files are stored; large outputs and figures are not)
@@ -47,3 +52,20 @@ wandb/
 # R artifacts
 .RData
 .Rhistory
+
+# Experiment outputs. Aggregated tables (reports/**/tables/) and generated figures
+# ARE committed -- they are what the paper cites. Excluded are only the artefacts
+# that are large and fully regenerable, deposited in the data archive instead:
+#   preds/        per-sample parquet prediction dumps (~12 GB in total); every
+#                 table is reproducible from them.
+#   checkpoints/  per-fold weights.
+#   logs/         job stdout.
+reports/**/preds/
+reports/**/checkpoints/
+reports/**/logs/
+*.parquet
+# Third-party inputs (GDSC release table, DepMap / DeepCDR / DrugCell matrices) are
+# not ours to redistribute; see README for where to download them.
+data/external/
+data/comparators/
+data/matched/

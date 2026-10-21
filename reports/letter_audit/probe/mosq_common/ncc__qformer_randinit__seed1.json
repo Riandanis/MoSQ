@@ -1,0 +1,89 @@
+{
+  "arm": "qformer_randinit",
+  "regime": "ncc",
+  "seed": 1,
+  "dataset": "full",
+  "fold_metrics": [
+    {
+      "mse": 1.7982875108718872,
+      "rmse": 1.341002427615956,
+      "mae": 0.9979729056358337,
+      "pearson_r": 0.8774235844612122,
+      "spearman_r": 0.8491990927291653,
+      "r2": 0.7647542953491211
+    },
+    {
+      "mse": 1.9170715808868408,
+      "rmse": 1.384583540595092,
+      "mae": 1.0256288051605225,
+      "pearson_r": 0.8696836233139038,
+      "spearman_r": 0.8454954049863913,
+      "r2": 0.7539241909980774
+    },
+    {
+      "mse": 1.8423000574111938,
+      "rmse": 1.357313544252467,
+      "mae": 1.0020309686660767,
+      "pearson_r": 0.8723500370979309,
+      "spearman_r": 0.8388057918050046,
+      "r2": 0.7574987411499023
+    },
+    {
+      "mse": 1.778709053993225,
+      "rmse": 1.3336825161908756,
+      "mae": 0.9981480836868286,
+      "pearson_r": 0.8765670657157898,
+      "spearman_r": 0.8491125044344057,
+      "r2": 0.7666153907775879
+    },
+    {
+      "mse": 1.8487616777420044,
+      "rmse": 1.3596917583562844,
+      "mae": 1.0085643529891968,
+      "pearson_r": 0.8724390864372253,
+      "spearman_r": 0.8441584590061004,
+      "r2": 0.7566787004470825
+    }
+  ],
+  "average": {
+    "mse": 1.8370259761810304,
+    "mse_std": 0.047904850620027396,
+    "rmse": 1.3552547574021347,
+    "rmse_std": 0.01762154136023553,
+    "mae": 1.0064690232276916,
+    "mae_std": 0.010320911081802091,
+    "pearson_r": 0.8736926794052124,
+    "pearson_r_std": 0.002885427650705059,
+    "spearman_r": 0.8453542505922134,
+    "spearman_r_std": 0.003827255872518069,
+    "r2": 0.7598942637443542,
+    "r2_std": 0.004909452112228511
+  },
+  "config": {
+    "regime": "ncc",
+    "arm": "qformer_randinit",
+    "seed": 1,
+    "fold_seed": null,
+    "n_folds": 5,
+    "folds": null,
+    "epochs": 10,
+    "batch_size": 256,
+    "mlp_lr": 0.001,
+    "num_workers": 8,
+    "device": "cuda:1",
+    "dataset": "full",
+    "num_query_tokens": 32,
+    "qformer_layers": 6,
+    "rna_csv": "/workspace/volume/Gastro_transformers/MoSQ/data/ccle_rna_for_ic50.csv",
+    "cellline_subset": "comparator_common",
+    "drug_csv": "/workspace/volume/Gastro_transformers/MoSQ/data/drug_embeddings.csv",
+    "dra_ckpt": "/workspace/volume/Gastro_transformers/MoSQ/saved_checkpoints/pretrained_dra.pt",
+    "clrna_ckpt": "/workspace/volume/Gastro_transformers/MoSQ/saved_checkpoints/pretrained_clrna.pt",
+    "experiment": "mosq_common",
+    "out_root": "reports/letter_audit/probe",
+    "skip_existing": false,
+    "drug_dim": 768,
+    "rna_dim": 256,
+    "feature_dim": 1080
+  }
+}

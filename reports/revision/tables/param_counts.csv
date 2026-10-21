@@ -1,0 +1,7 @@
+arm,num_query_tokens,qformer_layers,source,params_total,params_inference,params_qformer
+deployed_dra_checkpoint,32,6,checkpoint,73304903,72265733,
+clrna_checkpoint,32,6,checkpoint,62855492,61796354,
+capacity_q8_l2,8,2,constructed,35473222,34434052,18912768
+capacity_q16_l4,16,4,constructed,54385990,53346820,37825536
+capacity_q32_l6,32,6,constructed,73304902,72265732,56744448
+standalone_mlp,,,constructed,686593,686593,

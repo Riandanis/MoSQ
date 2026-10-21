@@ -98,24 +98,8 @@ def make_config(device):
     return cfg
 
 
-def create_random_folds(n_samples, n_folds=5, seed=42):
-    """
-    Create random row-based folds (standard KFold, NOT cell-line-aware).
-    """
-    rng = np.random.default_rng(seed)
-    indices = np.arange(n_samples)
-    rng.shuffle(indices)
-
-    fold_size = n_samples // n_folds
-    sample_fold = np.zeros(n_samples, dtype=int)
-
-    for i in range(n_folds):
-        start = i * fold_size
-        end = start + fold_size if i < n_folds - 1 else n_samples
-        sample_fold[indices[start:end]] = i
-
-    logger.info(f"Random {n_folds}-fold split: {np.bincount(sample_fold)} samples per fold")
-    return sample_fold
+# Canonical implementation lives in gastro_transformer.splits.
+from gastro_transformer.splits import create_random_folds  # noqa: E402
 
 
 def get_random_fold_splits(sample_fold, fold_idx):

@@ -1,0 +1,25 @@
+comparison,metric,delta,ci_lo,ci_hi,positive,wilcoxon_p
+E_embedding - F_full_transcriptome,r2,-0.0063,-0.0075,-0.0051,0/10,0.001953125
+E_embedding - F_full_transcriptome,dc_r2,-0.0229,-0.0271,-0.0188,0/10,0.001953125
+E_embedding - F_full_transcriptome,rho,-0.0006,-0.001,-0.0002,1/10,0.013671875
+E_embedding - F_full_transcriptome,top10,-0.005,-0.0062,-0.0039,0/10,0.001953125
+F_full_transcriptome - X_raw697,r2,-0.0009,-0.002,0.0001,4/10,0.083984375
+F_full_transcriptome - X_raw697,dc_r2,-0.0032,-0.0068,0.0005,4/10,0.083984375
+F_full_transcriptome - X_raw697,rho,-0.0029,-0.0034,-0.0025,0/10,0.001953125
+F_full_transcriptome - X_raw697,top10,-0.0022,-0.0038,-0.0007,2/10,0.009765625
+E_embedding - X_raw697,r2,-0.0072,-0.0078,-0.0066,0/10,0.001953125
+E_embedding - X_raw697,dc_r2,-0.0261,-0.0281,-0.0241,0/10,0.001953125
+E_embedding - X_raw697,rho,-0.0035,-0.0039,-0.0032,0/10,0.001953125
+E_embedding - X_raw697,top10,-0.0073,-0.0088,-0.0058,0/10,0.001953125
+E_embedding - C_context,r2,0.0174,0.0166,0.0182,10/10,0.001953125
+E_embedding - C_context,dc_r2,0.0629,0.0601,0.0657,10/10,0.001953125
+E_embedding - C_context,rho,0.0053,0.005,0.0056,10/10,0.001953125
+E_embedding - C_context,top10,0.0091,0.0073,0.0109,10/10,0.001953125
+F_full_transcriptome - C_context,r2,0.0237,0.0224,0.025,10/10,0.001953125
+F_full_transcriptome - C_context,dc_r2,0.0858,0.0813,0.0903,10/10,0.001953125
+F_full_transcriptome - C_context,rho,0.0059,0.0054,0.0064,10/10,0.001953125
+F_full_transcriptome - C_context,top10,0.0142,0.0132,0.0152,10/10,0.001953125
+X_raw697 - C_context,r2,0.0246,0.0237,0.0255,10/10,0.001953125
+X_raw697 - C_context,dc_r2,0.089,0.086,0.092,10/10,0.001953125
+X_raw697 - C_context,rho,0.0088,0.0085,0.0092,10/10,0.001953125
+X_raw697 - C_context,top10,0.0164,0.0142,0.0187,10/10,0.001953125

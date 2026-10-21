@@ -103,27 +103,14 @@ def batch_to_features(batch, device):
 # Shared utilities (from benchmark_ablations_v5.py)
 # ---------------------------------------------------------------------------
 
-def create_cellline_aware_folds(ic50_dataset, n_folds=3, seed=42):
-    rng = np.random.default_rng(seed)
-    unique_celllines = sorted(ic50_dataset.cellline_to_idx.keys())
-    rng.shuffle(unique_celllines)
-    n = len(unique_celllines)
-    fold_size = n // n_folds
-    cellline_folds = []
-    for i in range(n_folds):
-        start = i * fold_size
-        end = start + fold_size if i < n_folds - 1 else n
-        cellline_folds.append(set(unique_celllines[start:end]))
-
-    sample_fold = np.zeros(len(ic50_dataset), dtype=int)
-    for i in range(len(ic50_dataset)):
-        cl_id = ic50_dataset.cellline_ids[i]
-        for fold_idx, fold_cl in enumerate(cellline_folds):
-            if cl_id in fold_cl:
-                sample_fold[i] = fold_idx
-                break
-    logger.info(f"CV folds: {np.bincount(sample_fold)} samples per fold")
-    return sample_fold
+# Canonical implementations live in gastro_transformer.splits. They are
+# re-exported here because benchmark_literature_models.py and
+# benchmark_random_split_rnafiltered.py load this module by file path and bind
+# these names off it.
+from gastro_transformer.splits import (  # noqa: E402
+    create_cellline_aware_folds,
+    get_fold_splits,
+)
 
 
 def load_pretrained_weights(model, checkpoint_path, device):
@@ -132,12 +119,24 @@ def load_pretrained_weights(model, checkpoint_path, device):
     model_dict = model.state_dict()
     filtered = {k: v for k, v in state_dict.items()
                 if k in model_dict and v.shape == model_dict[k].shape}
+    # Shape-mismatched keys are dropped silently by strict=False. That turns a
+    # config or drug_dim mismatch into a normal-looking partial load with a
+    # randomly initialised projector, so report what did NOT load.
+    skipped = [k for k in model_dict if k not in filtered]
     logger.info(f"Loaded {len(filtered)}/{len(model_dict)} params from checkpoint")
+    if skipped:
+        shape_mismatch = [k for k in skipped if k in state_dict]
+        logger.warning(
+            f"{len(skipped)} params NOT loaded ({len(shape_mismatch)} present in the "
+            f"checkpoint but shape-mismatched). First few: {skipped[:5]}"
+        )
     model.load_state_dict(filtered, strict=False)
     return model
 
 
-def evaluate_foundation(model, loader, device):
+def evaluate_foundation(model, loader, device, return_preds=False):
+    """With ``return_preds=True`` also returns (predictions, targets) so the
+    caller can dump them per-sample. Requires an unshuffled loader."""
     model.eval()
     all_preds, all_targets = [], []
     with torch.no_grad():
@@ -169,10 +168,13 @@ def evaluate_foundation(model, loader, device):
             all_preds.extend(outputs['ic50_pred'].cpu().numpy())
             all_targets.extend(ic50_targets.cpu().numpy())
 
-    return compute_ic50_metrics(torch.tensor(all_preds), torch.tensor(all_targets))
+    metrics = compute_ic50_metrics(torch.tensor(all_preds), torch.tensor(all_targets))
+    if return_preds:
+        return metrics, np.asarray(all_preds), np.asarray(all_targets)
+    return metrics
 
 
-def evaluate_mlp(model, loader, device):
+def evaluate_mlp(model, loader, device, return_preds=False):
     model.eval()
     all_preds, all_targets = [], []
     with torch.no_grad():
@@ -182,7 +184,10 @@ def evaluate_mlp(model, loader, device):
             preds = model(features)
             all_preds.extend(preds.cpu().numpy())
             all_targets.extend(ic50_targets.cpu().numpy())
-    return compute_ic50_metrics(torch.tensor(all_preds), torch.tensor(all_targets))
+    metrics = compute_ic50_metrics(torch.tensor(all_preds), torch.tensor(all_targets))
+    if return_preds:
+        return metrics, np.asarray(all_preds), np.asarray(all_targets)
+    return metrics
 
 
 # ---------------------------------------------------------------------------
@@ -425,29 +430,6 @@ def convert_numpy(obj):
     elif isinstance(obj, np.ndarray):
         return obj.tolist()
     return obj
-
-
-# ---------------------------------------------------------------------------
-# Fold split helper
-# ---------------------------------------------------------------------------
-
-def get_fold_splits(sample_fold, fold_idx):
-    """Return (train_indices, val_indices, test_indices) for a given fold.
-
-    train_indices are shuffled with seed=42+fold_idx (same as all other scripts).
-    """
-    train_mask = sample_fold != fold_idx
-    test_mask = sample_fold == fold_idx
-    train_indices = np.where(train_mask)[0].tolist()
-    test_indices = np.where(test_mask)[0].tolist()
-
-    rng = np.random.default_rng(42 + fold_idx)
-    rng.shuffle(train_indices)
-    val_size = len(train_indices) // 4
-    val_indices = train_indices[:val_size]
-    train_indices = train_indices[val_size:]
-
-    return train_indices, val_indices, test_indices
 
 
 def subsample_train(train_indices, fraction):

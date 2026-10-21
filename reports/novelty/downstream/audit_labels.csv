@@ -1,0 +1,142 @@
+drug,pathway,matched_by,gdsc_name,gdsc_target,v17_target,target_overlap
+A-443654,PI3K/MTOR signaling,name,A-443654,"AKT1, AKT2, AKT3","AKT1, AKT2, AKT3",True
+AICA Ribonucleotide,Metabolism,name,AICA Ribonucleotide,AMPK agonist,AMPK agonist,True
+AKT inhibitor VIII,PI3K/MTOR signaling,name,AKT inhibitor VIII,"AKT1, AKT2, AKT3","AKT1, AKT2, AKT3",True
+AR-42,Chromatin histone acetylation,name,AR-42,HDAC1,HDAC1,True
+AS601245,JNK and p38 signaling,name,AS601245,"JNK1, JNK2, JNK2","JNK1, JNK2, JNK2",True
+AS605240,PI3K/MTOR signaling,name,AS605240,PI3Kgamma,PI3Kgamma,True
+AT-7519,Cell cycle,name,AT-7519,"CDK1, CDK2, CDK4, CDK6, CDK9","CDK1, CDK2, CDK4, CDK6, CDK9",True
+AZ628,ERK MAPK signaling,name,AZ628,BRAF,BRAF,True
+AZD6482,PI3K/MTOR signaling,name,AZD6482,PI3Kbeta|PIK3CB,PI3Kbeta,False
+AZD7762,Cell cycle,name,AZD7762,"CHEK1, CHEK2","CHEK1, CHEK2",True
+AZD8055,PI3K/MTOR signaling,name,AZD8055,"MTORC1, MTORC2","MTORC1, MTORC2",True
+Afatinib,EGFR signaling,name,Afatinib,"EGFR, ERBB2","ERBB2, EGFR",True
+Alectinib,RTK signaling,name,Alectinib,ALK,ALK,True
+Amuvatinib,RTK signaling,name,Amuvatinib,"KIT, PDGFRA, FLT3","KIT, PDGFRA, FLT3",True
+Axitinib,RTK signaling,name,Axitinib,"PDGFR, KIT, VEGFR","PDGFR, KIT, VEGFR",True
+BI-2536,Cell cycle,name,BI-2536,"PLK1, PLK2, PLK3","PLK1, PLK2, PLK3",True
+BIX02189,ERK MAPK signaling,name,BIX02189,"MEK5, ERK5","MEK5, ERK5",True
+BX-912,Metabolism,name,BX-912,PDK1 (PDPK1),PDK1 (PDPK1),True
+Belinostat,Chromatin histone acetylation,name,Belinostat,HDAC1,HDAC1,True
+Bleomycin,DNA replication,name,Bleomycin,dsDNA break induction,dsDNA break induction,True
+Bortezomib,Protein stability and degradation,name,Bortezomib,Proteasome,Proteasome,True
+CAY10603,Chromatin histone acetylation,name,CAY10603,"HDAC1, HDAC6","HDAC1, HDAC6",True
+CCT-018159,Protein stability and degradation,name,CCT-018159,HSP90,HSP90,True
+CCT007093,Cell cycle,name,CCT007093,PPM1D,PPM1D,True
+CGP-082996,Cell cycle,name,CGP-082996,CDK4,CDK4,True
+CGP-60474,Cell cycle,name,CGP-60474,"CDK1,CDK2,CDK5,CDK7,CDK9, PKC","CDK1,CDK2,CDK5,CDK7,CDK9, PKC",True
+CI-1040,ERK MAPK signaling,name,CI-1040,"MEK1, MEK2","MEK1, MEK2",True
+CP466722,Genome integrity,name,CP466722,ATM,ATM,True
+CP724714,EGFR signaling,name,CP724714,ERBB2,ERBB2,True
+Cabozantinib,RTK signaling,name,Cabozantinib,"VEGFR, MET, RET, KIT, FLT1, FLT3, FLT4, ","VEGFR, MET, RET, KIT, FLT1, FLT3, FLT4, ",True
+Cisplatin,DNA replication,name,Cisplatin,DNA crosslinker,DNA crosslinker,True
+Crizotinib,RTK signaling,name,Crizotinib,"MET, ALK, ROS1","MET, ALK, ROS1",True
+DMOG,Metabolism,name,DMOG,HIF-PH,HIF-PH,True
+Dabrafenib,ERK MAPK signaling,name,Dabrafenib,BRAF,BRAF,True
+Dacinostat,Chromatin histone acetylation,name,Dacinostat,HDAC1,HDAC1,True
+Dactolisib,PI3K/MTOR signaling,name,Dactolisib,"PI3K (class 1), MTORC1, MTORC2","PI3K (Class 1), MTORC1, MTORC2",True
+Daporinad,Metabolism,name,Daporinad,NAMPT,NAMPT ,True
+Docetaxel,Mitosis,name,Docetaxel,Microtubule stabiliser,Microtubule stabiliser,True
+Doramapimod,JNK and p38 signaling,name,Doramapimod,"p38, JNK2","p38, JNK2",True
+Doxorubicin,DNA replication,name,Doxorubicin,Anthracycline,Anthracycline,True
+EHT-1864,Cytoskeleton,name,EHT-1864,"RAC1, RAC2, RAC3","RAC1, RAC2, RAC3",True
+Elesclomol,Protein stability and degradation,name,Elesclomol,HSP90,HSP90,True
+Embelin,Apoptosis regulation,name,Embelin,XIAP,XIAP,True
+Entinostat,Chromatin histone acetylation,name,Entinostat,"HDAC1, HDAC3","HDAC1, HDAC3",True
+Epothilone B,Mitosis,name,Epothilone B,Microtubule stabiliser,Microtubule stabiliser,True
+Erlotinib,EGFR signaling,name,Erlotinib,EGFR,EGFR,True
+Etoposide,DNA replication,name,Etoposide,TOP2,TOP2,True
+FR-180204,ERK MAPK signaling,name,FR-180204,"ERK1, ERK2","ERK1, ERK2",True
+Foretinib,RTK signaling,name,Foretinib,"MET, KDR, TIE2, VEGFR3/FLT4, RON, PDGFR,","MET, KDR, TIE2, VEGFR3/FLT4, RON, PDGFR,",True
+GSK1070916,Mitosis,name,GSK1070916,"AURKA, AURKC","AURKA, AURKC",True
+GSK269962A,Cytoskeleton,name,GSK269962A,"ROCK1, ROCK2","ROCK1, ROCK2",True
+GSK429286A,Cytoskeleton,name,GSK429286A,"ROCK1, ROCK2","ROCK1, ROCK2",True
+GSK690693,PI3K/MTOR signaling,name,GSK690693,"AKT1, AKT2, AKT3","AKT1, AKT2, AKT3",True
+GW-2580,RTK signaling,name,GW-2580,CSF1R,CSF1R,True
+GW441756,RTK signaling,name,GW441756,NTRK1,NTRK1,True
+GW843682X,Cell cycle,name,GW843682X,PLK1,PLK1,True
+Gefitinib,EGFR signaling,name,Gefitinib,EGFR,EGFR,True
+Gemcitabine,DNA replication,name,Gemcitabine,Pyrimidine antimetabolite,Pyrimidine antimetabolite,True
+HG6-64-1,ERK MAPK signaling,name,HG6-64-1,BRAF,BRAF,True
+I-BET-762,Chromatin other,name,I-BET-762,"BRD2, BRD3, BRD4","BRD2, BRD3, BRD4",True
+IPA-3,Cytoskeleton,name,IPA-3,PAK1,PAK1,True
+Idelalisib,PI3K/MTOR signaling,name,Idelalisib,PI3Kdelta,PI3Kdelta,True
+Ispinesib Mesylate,Mitosis,name,Ispinesib Mesylate,KSP,KSP,True
+JNK Inhibitor VIII,JNK and p38 signaling,name,JNK Inhibitor VIII,JNK,JNK,True
+JNK-9L,JNK and p38 signaling,name,JNK-9L,"JNK2, JNK3","JNK2, JNK3",True
+JQ1,Chromatin other,name,JQ1,"BRD2, BRD3, BRD4, BRDT","BRD2, BRD3, BRD4, BRDT",True
+KU-55933,Genome integrity,name,KU-55933,ATM,ATM,True
+Lenalidomide,Protein stability and degradation,name,Lenalidomide,CRBN,CRBN,True
+Linifanib,RTK signaling,name,Linifanib,"VEGFR1, VEGFR2, VEGFR3, CSF1R, FLT3, KIT","VEGFR1, VEGFR2, VEGFR3, CSF1R, FLT3, KIT",True
+Luminespib,Protein stability and degradation,name,Luminespib,HSP90,HSP90,True
+MG-132,Protein stability and degradation,name,MG-132,"Proteasome, CAPN1","Proteasome, CAPN1",True
+MK-2206,PI3K/MTOR signaling,name,MK-2206,"AKT1, AKT2","AKT1, AKT2",True
+Masitinib,RTK signaling,name,Masitinib,"KIT, PDGFRA, PDGFRB","KIT, PDGFRA, PDGFRB",True
+Methotrexate,DNA replication,name,Methotrexate,Antimetabolite,Antimetabolite,True
+Mitomycin-C,DNA replication,name,Mitomycin-C,DNA crosslinker,DNA crosslinker,True
+Motesanib,RTK signaling,name,Motesanib,"VEGFR, RET, KIT, PDGFR","VEGFR, RET, KIT, PDGFR",True
+NU7441,Genome integrity,name,NU7441,DNAPK,DNAPK,True
+NVP-TAE684,RTK signaling,name,NVP-TAE684,ALK,ALK,True
+Navitoclax,Apoptosis regulation,name,Navitoclax,"BCL2, BCL-XL, BCL-W","BCL2, BCL-XL, BCL-W",True
+OSI-027,PI3K/MTOR signaling,name,OSI-027,"MTORC1, MTORC2","MTORC1, MTORC2",True
+OSI-930,RTK signaling,name,OSI-930,"KIT, VEGFR2",KIT,True
+OSU-03012,Metabolism,name,OSU-03012,PDK1 (PDPK1),PDK1 (PDPK1),True
+Obatoclax Mesylate,Apoptosis regulation,name,Obatoclax Mesylate,"BCL2, BCL-XL, BCL-W, MCL1","BCL2, BCL-XL, BCL-W, MCL1",True
+Olaparib,Genome integrity,name,Olaparib,"PARP1, PARP2","PARP1, PARP2",True
+Omipalisib,PI3K/MTOR signaling,name,Omipalisib,"PI3K (class 1), MTORC1, MTORC2","PI3K (class 1), MTORC1, MTORC2",True
+PAC-1,Apoptosis regulation,name,PAC-1,"Procaspase-3, Procaspase-7","Procaspase-3, Procaspase-7",True
+PD0325901,ERK MAPK signaling,name,PD0325901,"MEK1, MEK2","MEK1, MEK2",True
+PD173074,RTK signaling,name,PD173074,"FGFR1, FGFR2, FGFR3","FGFR1, FGFR3",True
+PF-4708671,PI3K/MTOR signaling,name,PF-4708671,S6K1,S6K1,True
+PF-562271,Cytoskeleton,name,PF-562271,"FAK, FAK2","FAK, FAK2",True
+PFI-1,Chromatin other,name,PFI-1,BRD4,BRD4,True
+PFI-3,Chromatin other,name,PFI-3|PFI3,"PB1, SMARCA4, SMARCA2|Polybromo 1, SMARC","SMARCA2, SMARCA4, PB1",True
+PHA-665752,RTK signaling,name,PHA-665752,MET,MET,True
+PHA-793887,Cell cycle,name,PHA-793887,"CDK2, CDK7, CDK5","CDK2, CDK7, CDK5",True
+PIK-93,PI3K/MTOR signaling,name,PIK-93,PK3CG,PI3Kgamma,False
+PLX-4720,ERK MAPK signaling,name,PLX-4720,BRAF,BRAF,True
+Paclitaxel,Mitosis,name,Paclitaxel,Microtubule stabiliser,Microtubule stabiliser,True
+Palbociclib,Cell cycle,name,Palbociclib,"CDK4, CDK6","CDK4, CDK6",True
+Parthenolide,Chromatin histone acetylation,name,Parthenolide,HDAC1,HDAC1 ,True
+Pazopanib,RTK signaling,name,Pazopanib,"CSF1R, KIT,  PDGFRA, PDGFRB","CSF1R, KIT,  PDGFRA, PDGFRB",True
+Pelitinib,EGFR signaling,name,Pelitinib,EGFR,EGFR,True
+Pictilisib,PI3K/MTOR signaling,name,Pictilisib,PI3K (class 1),PI3K (class 1),True
+Quizartinib,RTK signaling,name,Quizartinib,FLT3,FLT3,True
+RO-3306,Cell cycle,name,RO-3306,CDK1,CDK1,True
+Rapamycin,PI3K/MTOR signaling,name,Rapamycin,MTORC1,MTORC1,True
+Refametinib,ERK MAPK signaling,name,Refametinib,"MEK1, MEK2","MEK1, MEK2",True
+Rucaparib,Genome integrity,name,Rucaparib,"PARP1, PARP2","PARP1, PARP2",True
+S-Trityl-L-cysteine,Mitosis,name,S-Trityl-L-cysteine,KIF11,KIF11,True
+SB505124,RTK signaling,name,SB505124,"TGFBR1, ACVR1B, ACVR1C","ALK4, ALK5",False
+SB590885,ERK MAPK signaling,name,SB590885,BRAF,BRAF,True
+SN-38,DNA replication,name,SN-38,TOP1,TOP1,True
+SNX-2112,Protein stability and degradation,name,SNX-2112,HSP90,HSP90,True
+Seliciclib,Cell cycle,name,Seliciclib,"CDK2, CDK7, CDK9","CDK2, CDK7, CDK9",True
+Selisistat,Chromatin histone acetylation,name,Selisistat,SIRT1,SIRT1,True
+Selumetinib,ERK MAPK signaling,name,Selumetinib,"MEK1, MEK2","MEK1, MEK2",True
+Sepantronium bromide,Apoptosis regulation,name,Sepantronium bromide,BIRC5,BIRC5,True
+Sunitinib,RTK signaling,name,Sunitinib,"PDGFR, KIT, VEGFR, FLT3, RET, CSF1R","PDGFR, KIT, VEGFR, FLT3, RET, CSF1R",True
+TAK-715,JNK and p38 signaling,name,TAK-715,"p38alpha, p38beta","p38alpha, p38beta",True
+TGX221,PI3K/MTOR signaling,name,TGX221,PI3Kbeta,PI3Kbeta,True
+TW 37,Apoptosis regulation,name,TW 37,"BCL2, BCL-XL, MCL1","BCL2, BCL-XL, MCL1",True
+Talazoparib,Genome integrity,name,Talazoparib,"PARP1, PARP2","PARP1, PARP2",True
+Tanespimycin,Protein stability and degradation,name,Tanespimycin,HSP90,HSP90,True
+Temozolomide,DNA replication,name,Temozolomide,DNA alkylating agent,DNA alkylating agent,True
+Temsirolimus,PI3K/MTOR signaling,name,Temsirolimus,MTOR,MTOR,True
+Tivozanib,RTK signaling,name,Tivozanib,"VEGFR1, VEGFR2, VEGFR3, PDGFR, KIT","VEGFR1, VEGFR2, VEGFR3",True
+Tozasertib,Mitosis,name,Tozasertib,"AURKA, AURKB, AURKC, others","AURKA, AURKB, AURKC, others",True
+Trametinib,ERK MAPK signaling,name,Trametinib,"MEK1, MEK2","MEK1, MEK2",True
+Tubastatin A,Chromatin histone acetylation,name,Tubastatin A,"HDAC1, HDAC6, HDAC8","HDAC1, HDAC6, HDAC8",True
+UNC1215,Chromatin other,name,UNC1215,L3MBTL3,L3MBTL3,True
+VX-11e,ERK MAPK signaling,name,VX-11e,ERK2,ERK2,True
+VX-702,JNK and p38 signaling,name,VX-702,p38,p38,True
+Veliparib,Genome integrity,name,Veliparib,"PARP1, PARP2","PARP1, PARP2",True
+Vinblastine,Mitosis,name,Vinblastine,Microtubule destabiliser,Microtubule destabiliser,True
+Vinorelbine ,Mitosis,name,Vinorelbine,Microtubule destabiliser,Microtubule destabiliser,True
+Vorinostat,Chromatin histone acetylation,name,Vorinostat,"HDAC inhibitor Class I, IIa, IIb, IV","HDAC inhibitor Class I, IIa, IIb, IV",True
+Wee1 Inhibitor,Cell cycle,name,Wee1 Inhibitor,"WEE1, CHEK1","WEE1, CHEK1",True
+XMD8-92,ERK MAPK signaling,name,XMD8-92,ERK5,MAPK7,False
+Y-39983,Cytoskeleton,name,Y-39983,ROCK,ROCK,True
+YM201636,PI3K/MTOR signaling,name,YM201636,PIKFYVE,PYKFYVE,False
+ZM447439,Mitosis,name,ZM447439,"AURKA, AURKB","AURKA, AURKB",True
+ZSTK474,PI3K/MTOR signaling,name,ZSTK474,PI3K (class 1),PI3K (class 1),True

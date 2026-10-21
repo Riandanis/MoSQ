@@ -1,0 +1,32 @@
+{
+  "release": "GDSC v17.3, release 7.0",
+  "source_file": "v17.3_fitted_dose_response.xlsx",
+  "archive": "https://ftp.sanger.ac.uk/pub/project/cancerrxgene/releases/release-7.0/",
+  "predates_gdsc1_gdsc2_split": true,
+  "modern_description": "GDSC1 lineage, release 7.0 (v17.3)",
+  "cite": [
+    "Yang et al. 2013",
+    "Iorio et al. 2016"
+  ],
+  "our_rows": 185294,
+  "our_drugs": 215,
+  "our_celllines": 998,
+  "duplicate_rows": 22704,
+  "duplicate_drugs": 15,
+  "v173_rows": 224202,
+  "v173_drugs": 251,
+  "v173_celllines": 1065,
+  "drugs_with_two_drug_ids": 15,
+  "duplicate_mechanism_confirmed": true,
+  "restricted_rows": 193770,
+  "frac_above_max_conc": 0.6295,
+  "n_above_max_conc": 121984,
+  "frac_below_min_conc": 0.0085,
+  "frac_within_tested_range": 0.362,
+  "extrapolation_between_drug_pct": 41.3,
+  "drugs_scored": 215,
+  "drugs_over_90pct_extrapolated": 67,
+  "drugs_under_10pct_extrapolated": 12,
+  "per_drug_rate_median": 0.69,
+  "censoring_note": "No explicit censoring flag exists, but MIN/MAX_CONC_MICROMOLAR make censoring derivable. A fitted LN_IC50 above the maximum tested concentration is an extrapolation of the dose-response curve, not a measurement."
+}

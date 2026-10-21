@@ -523,7 +523,8 @@ class IC50Dataset(Dataset):
         log_transform: bool = False,  # Set True ONLY if ic50_col is raw μM (not already log-scale)
         max_cellline_idx: Optional[int] = None,  # Validate cell-line count fits model embedding table
         allowed_drugs: Optional[Set[str]] = None,  # If set, only include these drugs (for leak-free NCD)
-        allowed_celllines: Optional[Set[str]] = None  # If set, only include these cell-lines (for leak-free NCC)
+        allowed_celllines: Optional[Set[str]] = None,  # If set, only include these cell-lines (for leak-free NCC)
+        extra_pairs: Optional[Set[Tuple[str, str]]] = None  # (cellline, drug) pairs kept despite allowed_celllines (panel completion)
     ):
         """
         Args:
@@ -573,7 +574,19 @@ class IC50Dataset(Dataset):
 
         # Filter to allowed_celllines if specified (for leak-free NCC)
         if allowed_celllines is not None:
-            df = df[df[cellline_id_col].isin(allowed_celllines)]
+            keep = df[cellline_id_col].isin(allowed_celllines)
+            if extra_pairs:
+                # Panel completion (C-transfer experiment): revealed
+                # pairs of otherwise held-out cell lines. Filtering happens before the
+                # keep-first de-duplication below, so a revealed pair resolves to the same
+                # row it does in the full dataset.
+                pairs = pd.MultiIndex.from_arrays(
+                    [df[cellline_id_col].astype(str), df[drug_id_col].astype(str)]
+                )
+                revealed = pairs.isin(list(extra_pairs))
+                keep = keep | revealed
+                print(f"Revealed pairs from held-out cell lines: {int((revealed & ~df[cellline_id_col].isin(allowed_celllines)).sum())} rows before de-duplication")
+            df = df[keep]
             print(f"After filtering to allowed celllines: {len(df)} entries")
 
         # Detect and remove duplicate drug-cellline pairs
@@ -815,6 +828,39 @@ class IC50Dataset(Dataset):
             item['tissue_id'] = self.tissue_ids[idx]
 
         return item
+
+
+class BinLabeledIC50Dataset(Dataset):
+    """Wraps an IC50Dataset, attaching a precomputed contrastive bin per row.
+
+    DR-A's supervised contrastive loss needs a bin label per sample. The batch
+    dict carries no row index, so the label has to ride along inside the sample;
+    that is the only reason this wrapper exists.
+
+    Dataset attributes used by fold construction and prediction dumping are
+    proxied through, so a wrapped dataset is a drop-in replacement.
+    """
+
+    def __init__(self, base: 'IC50Dataset', bin_labels):
+        if len(bin_labels) != len(base):
+            raise ValueError(
+                f"bin_labels has length {len(bin_labels)} but dataset has {len(base)} rows"
+            )
+        self.base = base
+        self.bin_labels = torch.as_tensor(bin_labels, dtype=torch.long)
+
+    def __len__(self):
+        return len(self.base)
+
+    def __getitem__(self, idx):
+        item = self.base[idx]
+        item['bin_label'] = self.bin_labels[idx]
+        return item
+
+    def __getattr__(self, name):
+        # Only reached for attributes not found on the wrapper itself, so the
+        # explicit ones above still win.
+        return getattr(self.__dict__['base'], name)
 
 
 def create_data_loaders(

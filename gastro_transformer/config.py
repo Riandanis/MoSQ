@@ -27,9 +27,9 @@ class GastroTransformerConfig:
     # Model architecture dimensions
     # ==========================================================================
     hidden_dim: int = 768         # Common projection dimension for all modalities
-    num_query_tokens: int = 48    # Q-Former learnable query tokens (increased from 32)
-    qformer_layers: int = 8       # Number of Q-Former transformer blocks (increased from 6)
-    qformer_heads: int = 12       # Number of attention heads in Q-Former (unchanged)
+    num_query_tokens: int = 32    # Q-Former learnable query tokens (as in the paper and shipped checkpoints)
+    qformer_layers: int = 6       # Number of Q-Former transformer blocks (as in the paper and shipped checkpoints)
+    qformer_heads: int = 12       # Number of attention heads in Q-Former (head dim d_k = hidden_dim / heads = 64)
     dropout: float = 0.1          # Dropout rate
 
     # ==========================================================================

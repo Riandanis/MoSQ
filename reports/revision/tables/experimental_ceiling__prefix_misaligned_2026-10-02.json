@@ -1,0 +1,29 @@
+{
+  "n_replicate_pairs": 11352,
+  "n_drugs_involved": 15,
+  "n_drugs_total": 215,
+  "pairs_per_involved_drug": 757,
+  "interpretation": "NOT technical replicates: duplication concentrated in 15/215 drugs, each spanning ~757 cell lines. Mechanism confirmed against the source release: these are exactly the compounds carrying two DRUG_IDs in GDSC v17.3, i.e. two independent screens over different concentration ranges. The spread bounds between-screen disagreement, not within-assay reproducibility. (An earlier version of this note attributed the duplication to the GDSC1/GDSC2 split; v17.3 predates that split, so that was wrong -- see scripts/analysis/dataset_provenance.py.)",
+  "group_sizes": {
+    "2": 11352
+  },
+  "mean_signed_difference": -0.372,
+  "sd_of_difference": 2.1484,
+  "sigma_upper_bound": 1.5191,
+  "replicate_pearson_r": 0.2235,
+  "var_ln_ic50": 7.4335,
+  "rmse_noise_floor": 1.5191,
+  "max_attainable_r2": 0.6896,
+  "note": "sigma is an UPPER bound (duplicates may not be pure technical replicates; mean signed difference is non-zero), so max_attainable_r2 is a LOWER bound on the achievable ceiling.",
+  "ncc_full_998cl": {
+    "r2": 0.7867,
+    "headroom_used_pct": -168.7,
+    "rmse": 1.282,
+    "model_only_error": 0.0,
+    "noise_share_of_squared_error_pct": 140.4
+  },
+  "ncc_rna_subset_592cl": {
+    "r2": 0.8102,
+    "headroom_used_pct": -233.7
+  }
+}

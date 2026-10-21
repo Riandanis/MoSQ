@@ -1,0 +1,2 @@
+step,final,n_fold_pairs,n_complete_seeds,r2_model,r2_randinit,delta,ci_lo,ci_hi,n_positive,wilcoxon_p,dc_r2,dc_bar,rna_gain,rna_gain_randinit,crit_a,crit_b,verdict
+a1,True,15,3,0.7408117870489757,0.7601530293623606,-0.01934124231338501,-0.023366156966957916,-0.015316327659812107,0,6.103515625e-05,0.055281917540062064,0.1226,-0.009118874867757162,0.015643651286760967,False,False,"HARMFUL (null, negative result)"

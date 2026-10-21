@@ -1,0 +1,10 @@
+{
+  "campaign_total_gpu_h_shared_device": 277.65,
+  "n_jobs_with_real_compute": 229,
+  "n_skip_existing_noops_excluded": 242,
+  "devices": [
+    "cuda:0",
+    "cuda:1"
+  ],
+  "note": "campaign_total is summed job occupancy on shared devices; jobs ran concurrently so this overstates true device-hours and must not be presented as single-model training cost. Use single_model_min, and state that it was measured under a 300 W power cap."
+}
