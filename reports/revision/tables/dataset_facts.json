@@ -1,0 +1,58 @@
+{
+  "bin_agreement": {
+    "global_vs_per_drug_rank": 0.3338,
+    "global_vs_per_drug_z": 0.3493,
+    "global_vs_random": 0.1985,
+    "n_pairs": 173942,
+    "chance": 0.2,
+    "per_drug_rank_max_bin_share": 0.2025
+  },
+  "matrix_completeness": {
+    "n_celllines": 998,
+    "n_drugs": 215,
+    "observed_pairs": 173942,
+    "completeness": 0.8107,
+    "median_drugs_per_cellline": 177,
+    "min_drugs_per_cellline": 1,
+    "max_drugs_per_cellline": 215
+  },
+  "batch_composition": {
+    "available": true,
+    "runs": {
+      "dra_noclrna": {
+        "pos_per_anchor_mean": 50.998,
+        "pos_per_anchor_min": 50.959,
+        "frac_anchors_no_positive_max": 0.0,
+        "n_epochs": 15
+      },
+      "contrastive_only": {
+        "pos_per_anchor_mean": 50.998,
+        "pos_per_anchor_min": 50.959,
+        "frac_anchors_no_positive_max": 0.0,
+        "n_epochs": 15
+      },
+      "reconw3p0": {
+        "pos_per_anchor_mean": 50.998,
+        "pos_per_anchor_min": 50.959,
+        "frac_anchors_no_positive_max": 0.0,
+        "n_epochs": 15
+      },
+      "reconw11p0": {
+        "pos_per_anchor_mean": 50.998,
+        "pos_per_anchor_min": 50.959,
+        "frac_anchors_no_positive_max": 0.0,
+        "n_epochs": 15
+      },
+      "recon_only": {
+        "pos_per_anchor_mean": 50.998,
+        "pos_per_anchor_min": 50.959,
+        "frac_anchors_no_positive_max": 0.0,
+        "n_epochs": 15
+      }
+    },
+    "pooled_pos_per_anchor": 51.0,
+    "pooled_pos_per_anchor_min": 51.0,
+    "max_frac_anchors_no_positive": 0.0,
+    "analytic_expectation": 51.2
+  }
+}

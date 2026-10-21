@@ -1,0 +1,26 @@
+{
+  "deployed_dra_checkpoint": {
+    "total": 73304903,
+    "inference": 72265733
+  },
+  "clrna_checkpoint": {
+    "total": 62855492,
+    "inference": 61796354
+  },
+  "capacity_q8_l2": {
+    "total": 35473222,
+    "inference": 34434052
+  },
+  "capacity_q16_l4": {
+    "total": 54385990,
+    "inference": 53346820
+  },
+  "capacity_q32_l6": {
+    "total": 73304902,
+    "inference": 72265732
+  },
+  "standalone_mlp": {
+    "total": 686593,
+    "inference": 686593
+  }
+}

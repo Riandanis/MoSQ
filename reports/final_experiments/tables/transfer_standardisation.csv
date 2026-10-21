@@ -1,0 +1,3 @@
+features,dimensionality,preprocessing,folds,downstream_training
+dra_leakfree,768,"per-fold z-score, training-fold statistics only","5-fold ncc, identical across arms",AdamW lr=1e-3 wd=0.01 batch=256 MSE 10 epochs (neural); XGBRegressor 200 trees depth 6 lr 0.1
+raw,1080,"per-fold z-score, training-fold statistics only","5-fold ncc, identical across arms",AdamW lr=1e-3 wd=0.01 batch=256 MSE 10 epochs (neural); XGBRegressor 200 trees depth 6 lr 0.1

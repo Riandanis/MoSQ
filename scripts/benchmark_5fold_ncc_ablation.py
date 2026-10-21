@@ -121,45 +121,14 @@ def batch_to_features(batch, device):
 # ============================================================================
 # Cell-line aware folds
 # ============================================================================
+# Canonical implementations live in gastro_transformer.splits. They are
+# re-exported here because other scripts load this module by file path and bind
+# these names off it.
 
-def create_cellline_aware_folds(ic50_dataset, n_folds=5, seed=42):
-    """Create cell-line-aware CV folds (same as all other scripts)."""
-    rng = np.random.default_rng(seed)
-    unique_celllines = sorted(ic50_dataset.cellline_to_idx.keys())
-    rng.shuffle(unique_celllines)
-    n = len(unique_celllines)
-    fold_size = n // n_folds
-    cellline_folds = []
-    for i in range(n_folds):
-        start = i * fold_size
-        end = start + fold_size if i < n_folds - 1 else n
-        cellline_folds.append(set(unique_celllines[start:end]))
-
-    sample_fold = np.zeros(len(ic50_dataset), dtype=int)
-    for i in range(len(ic50_dataset)):
-        cl_id = ic50_dataset.cellline_ids[i]
-        for fold_idx, fold_cl in enumerate(cellline_folds):
-            if cl_id in fold_cl:
-                sample_fold[i] = fold_idx
-                break
-    logger.info(f"CV folds: {np.bincount(sample_fold)} samples per fold")
-    return sample_fold
-
-
-def get_fold_splits(sample_fold, fold_idx):
-    """Return (train_indices, val_indices, test_indices) for a given fold."""
-    train_mask = sample_fold != fold_idx
-    test_mask = sample_fold == fold_idx
-    train_indices = np.where(train_mask)[0].tolist()
-    test_indices = np.where(test_mask)[0].tolist()
-
-    rng = np.random.default_rng(42 + fold_idx)
-    rng.shuffle(train_indices)
-    val_size = len(train_indices) // 4
-    val_indices = train_indices[:val_size]
-    train_indices = train_indices[val_size:]
-
-    return train_indices, val_indices, test_indices
+from gastro_transformer.splits import (  # noqa: E402
+    create_cellline_aware_folds,
+    get_fold_splits,
+)
 
 
 # ============================================================================
@@ -172,7 +141,17 @@ def load_pretrained_weights(model, checkpoint_path, device):
     model_dict = model.state_dict()
     filtered = {k: v for k, v in state_dict.items()
                 if k in model_dict and v.shape == model_dict[k].shape}
+    # Shape-mismatched keys are dropped silently by strict=False. That turns a
+    # config or drug_dim mismatch into a normal-looking partial load with a
+    # randomly initialised projector, so report what did NOT load.
+    skipped = [k for k in model_dict if k not in filtered]
     logger.info(f"Loaded {len(filtered)}/{len(model_dict)} params from checkpoint")
+    if skipped:
+        shape_mismatch = [k for k in skipped if k in state_dict]
+        logger.warning(
+            f"{len(skipped)} params NOT loaded ({len(shape_mismatch)} present in the "
+            f"checkpoint but shape-mismatched). First few: {skipped[:5]}"
+        )
     model.load_state_dict(filtered, strict=False)
     return model
 
@@ -181,8 +160,13 @@ def load_pretrained_weights(model, checkpoint_path, device):
 # Evaluation
 # ============================================================================
 
-def evaluate_foundation(model, loader, device):
-    """Evaluate a Q-Former model."""
+def evaluate_foundation(model, loader, device, return_preds=False):
+    """Evaluate a Q-Former model.
+
+    With ``return_preds=True`` also returns the raw (predictions, targets) so the
+    caller can dump them per-sample. The loader must be unshuffled for those to
+    line up with the row indices it was built from.
+    """
     model.eval()
     all_preds, all_targets = [], []
     with torch.no_grad():
@@ -214,10 +198,13 @@ def evaluate_foundation(model, loader, device):
             all_preds.extend(outputs['ic50_pred'].cpu().numpy())
             all_targets.extend(ic50_targets.cpu().numpy())
 
-    return compute_ic50_metrics(torch.tensor(all_preds), torch.tensor(all_targets))
+    metrics = compute_ic50_metrics(torch.tensor(all_preds), torch.tensor(all_targets))
+    if return_preds:
+        return metrics, np.asarray(all_preds), np.asarray(all_targets)
+    return metrics
 
 
-def evaluate_mlp(model, loader, device):
+def evaluate_mlp(model, loader, device, return_preds=False):
     """Evaluate a standalone MLP model."""
     model.eval()
     all_preds, all_targets = [], []
@@ -228,7 +215,10 @@ def evaluate_mlp(model, loader, device):
             preds = model(features)
             all_preds.extend(preds.cpu().numpy())
             all_targets.extend(ic50_targets.cpu().numpy())
-    return compute_ic50_metrics(torch.tensor(all_preds), torch.tensor(all_targets))
+    metrics = compute_ic50_metrics(torch.tensor(all_preds), torch.tensor(all_targets))
+    if return_preds:
+        return metrics, np.asarray(all_preds), np.asarray(all_targets)
+    return metrics
 
 
 # ============================================================================
@@ -291,8 +281,15 @@ def train_standalone_mlp(model, train_loader, val_loader, device, epochs=10, pat
 
 
 def finetune_foundation(model, train_loader, val_loader, config, device,
-                         epochs=10, patience=5, use_tricks=False):
-    """Fine-tune a Q-Former model with differential learning rates."""
+                         epochs=10, patience=5, use_tricks=False,
+                         aux_loss_fn=None, aux_weight=0.0, aux_bin_edges=None):
+    """Fine-tune a Q-Former model with differential learning rates.
+
+    ``aux_loss_fn`` (DR-A as an auxiliary fine-tuning loss; pre-registered): an optional
+    supervised-contrastive term on the fused embedding, with bins from
+    ``aux_bin_edges`` (computed on the fold's training rows). Off by default, so
+    every existing arm trains exactly as before.
+    """
     base_lr = config.learning_rate
     low_lr = base_lr * config.qformer_finetune_lr_ratio
 
@@ -378,6 +375,13 @@ def finetune_foundation(model, train_loader, val_loader, config, device,
                 )
                 loss = ic50_loss_fn(outputs['ic50_pred'], ic50_targets)
 
+            if aux_loss_fn is not None and aux_weight > 0:
+                # side='left' bucketing, matching compute_bin_labels' searchsorted.
+                bins = torch.bucketize(ic50_targets.float(), aux_bin_edges, right=False)
+                loss = loss + aux_weight * aux_loss_fn(
+                    outputs['fused_embedding'].float(), bins
+                )
+
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), config.max_grad_norm)
             optimizer.step()
@@ -425,8 +429,34 @@ def compute_metrics_np(y_true, y_pred):
     }
 
 
+_FEATURE_CACHE = {}
+
+
+def get_feature_matrix(ic50_dataset):
+    """Materialise the full (N, 1080) feature matrix once and cache it.
+
+    ``extract_fair_features`` calls ``ic50_dataset[idx]`` in a Python loop, which
+    rebuilds a dict per row. Called per fold for both train and test that is
+    ~1.4M ``__getitem__`` calls per 5-fold run. The whole matrix is only ~750 MB
+    in float32, so building it once is strictly better.
+    """
+    key = id(ic50_dataset)
+    if key not in _FEATURE_CACHE:
+        all_indices = list(range(len(ic50_dataset)))
+        logger.info(f"Building feature matrix for {len(all_indices)} rows (one-off)...")
+        _FEATURE_CACHE[key] = _extract_fair_features_loop(ic50_dataset, all_indices)
+    return _FEATURE_CACHE[key]
+
+
 def extract_fair_features(ic50_dataset, indices):
     """Extract 1080d features (drug + RNA + cancer + tissue) for given indices."""
+    features, targets = get_feature_matrix(ic50_dataset)
+    idx = np.asarray(indices, dtype=np.int64)
+    return features[idx], targets[idx]
+
+
+def _extract_fair_features_loop(ic50_dataset, indices):
+    """Row-by-row extraction; the definition of the 1080-d feature vector."""
     features = np.zeros((len(indices), FAIR_INPUT_DIM), dtype=np.float32)
     targets = np.zeros(len(indices), dtype=np.float32)
 

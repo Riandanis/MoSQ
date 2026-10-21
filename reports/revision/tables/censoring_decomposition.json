@@ -1,0 +1,10 @@
+{
+  "extrapolated_share": 0.6223,
+  "total_var_y": 7.6769,
+  "within_stratum_var": 4.478,
+  "between_stratum_var": 3.1989,
+  "between_stratum_pct": 41.7,
+  "mean_measured": -0.3446,
+  "mean_extrapolated": 3.3445,
+  "mean_gap": 3.6891
+}

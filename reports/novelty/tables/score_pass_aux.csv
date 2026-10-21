@@ -1,0 +1,2 @@
+step,final,n_fold_pairs,n_complete_seeds,r2_model,r2_randinit,delta,ci_lo,ci_hi,n_positive,wilcoxon_p,dc_r2,dc_bar,rna_gain,rna_gain_randinit,crit_a,crit_b,verdict
+aux,True,15,3,0.759823543826739,0.7601530293623606,-0.0003294855356216431,-0.0008848666180199074,0.0002258955467766212,3,0.0946044921875,0.12453837522540219,0.1226,0.01566910247008006,0.015643651286760967,False,True,NULL (negative result)

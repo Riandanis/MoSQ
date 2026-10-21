@@ -137,6 +137,7 @@ class DeepCDRStyle(nn.Module):
     """
     def __init__(self, drug_dim=768, cell_dim=312, hidden=128, dropout=0.1):
         super().__init__()
+        self.drug_dim = drug_dim
         self.drug_branch = nn.Sequential(
             nn.Linear(drug_dim, 256),
             nn.LayerNorm(256),
@@ -175,8 +176,9 @@ class DeepCDRStyle(nn.Module):
         Args:
             x: [B, drug_dim + cell_dim] = [B, 1080]
         """
-        drug = x[:, :DRUG_DIM]
-        cell = x[:, DRUG_DIM:]
+        split = getattr(self, "drug_dim", DRUG_DIM)
+        drug = x[:, :split]
+        cell = x[:, split:]
 
         drug_h = self.drug_branch(drug)          # [B, 128]
         cell_h = self.cell_branch(cell)           # [B, 128]
@@ -203,6 +205,7 @@ class DrugCellStyle(nn.Module):
     """
     def __init__(self, drug_dim=768, cell_dim=312, hidden=128, dropout=0.1):
         super().__init__()
+        self.drug_dim = drug_dim
         self.drug_branch = nn.Sequential(
             nn.Linear(drug_dim, 256),
             nn.LayerNorm(256),
@@ -236,8 +239,9 @@ class DrugCellStyle(nn.Module):
         )
 
     def forward(self, x):
-        drug = x[:, :DRUG_DIM]
-        cell = x[:, DRUG_DIM:]
+        split = getattr(self, "drug_dim", DRUG_DIM)
+        drug = x[:, :split]
+        cell = x[:, split:]
 
         drug_h = self.drug_branch(drug)
         cell_h = self.cell_branch(cell)
@@ -258,6 +262,7 @@ class tCNNStyle(nn.Module):
     """
     def __init__(self, drug_dim=768, cell_dim=312, hidden=256, dropout=0.1):
         super().__init__()
+        self.drug_dim = drug_dim
         self.drug_branch = nn.Sequential(
             nn.Linear(drug_dim, hidden),
             nn.LayerNorm(hidden),
@@ -279,8 +284,9 @@ class tCNNStyle(nn.Module):
         )
 
     def forward(self, x):
-        drug = x[:, :DRUG_DIM]
-        cell = x[:, DRUG_DIM:]
+        split = getattr(self, "drug_dim", DRUG_DIM)
+        drug = x[:, :split]
+        cell = x[:, split:]
 
         drug_h = self.drug_branch(drug)
         cell_h = self.cell_branch(cell)

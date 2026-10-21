@@ -1,0 +1,62 @@
+{
+  "('r2', 'mean')": {
+    "cellline_mean": 0.0586,
+    "drug_mean": -0.0107,
+    "global_mean": -0.0107
+  },
+  "('r2', 'std')": {
+    "cellline_mean": 0.0214,
+    "drug_mean": 0.0149,
+    "global_mean": 0.0149
+  },
+  "('rmse', 'mean')": {
+    "cellline_mean": 2.672,
+    "drug_mean": 2.7667,
+    "global_mean": 2.7667
+  },
+  "('rmse', 'std')": {
+    "cellline_mean": 0.3129,
+    "drug_mean": 0.3009,
+    "global_mean": 0.3009
+  },
+  "('mae', 'mean')": {
+    "cellline_mean": 2.1013,
+    "drug_mean": 2.1705,
+    "global_mean": 2.1705
+  },
+  "('mae', 'std')": {
+    "cellline_mean": 0.2755,
+    "drug_mean": 0.2642,
+    "global_mean": 0.2642
+  },
+  "('male', 'mean')": {
+    "cellline_mean": 0.6551,
+    "drug_mean": 0.6833,
+    "global_mean": 0.6833
+  },
+  "('male', 'std')": {
+    "cellline_mean": 0.088,
+    "drug_mean": 0.0833,
+    "global_mean": 0.0833
+  },
+  "('evapa', 'mean')": {
+    "cellline_mean": 0.0692,
+    "drug_mean": 0.0,
+    "global_mean": 0.0
+  },
+  "('evapa', 'std')": {
+    "cellline_mean": 0.0173,
+    "drug_mean": 0.0,
+    "global_mean": 0.0
+  },
+  "('r2_drug_centered', 'mean')": {
+    "cellline_mean": 0.0586,
+    "drug_mean": -0.0107,
+    "global_mean": -0.0107
+  },
+  "('r2_drug_centered', 'std')": {
+    "cellline_mean": 0.0214,
+    "drug_mean": 0.0149,
+    "global_mean": 0.0149
+  }
+}

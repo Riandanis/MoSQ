@@ -28,6 +28,7 @@ import argparse
 import json
 import logging
 import numpy as np
+import pandas as pd
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -39,7 +40,8 @@ from tqdm import tqdm
 
 from gastro_transformer.config import GastroTransformerConfig
 from gastro_transformer.model import ModalitySlotQFormer
-from gastro_transformer.data import DrugEmbeddingDataset, IC50Dataset
+from gastro_transformer.data import BinLabeledIC50Dataset, DrugEmbeddingDataset, IC50Dataset
+from gastro_transformer.seeding import seed_worker, set_all_seeds, torch_generator
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s:%(name)s:%(message)s')
 logger = logging.getLogger(__name__)
@@ -58,7 +60,17 @@ def load_pretrained_weights(model, checkpoint_path, device):
     model_dict = model.state_dict()
     filtered = {k: v for k, v in state_dict.items()
                 if k in model_dict and v.shape == model_dict[k].shape}
+    # Shape-mismatched keys are dropped silently by strict=False. That turns a
+    # config or drug_dim mismatch into a normal-looking partial load with a
+    # randomly initialised projector, so report what did NOT load.
+    skipped = [k for k in model_dict if k not in filtered]
     logger.info(f"Loaded {len(filtered)}/{len(model_dict)} params from checkpoint")
+    if skipped:
+        shape_mismatch = [k for k in skipped if k in state_dict]
+        logger.warning(
+            f"{len(skipped)} params NOT loaded ({len(shape_mismatch)} present in the "
+            f"checkpoint but shape-mismatched). First few: {skipped[:5]}"
+        )
     model.load_state_dict(filtered, strict=False)
     return model
 
@@ -133,6 +145,106 @@ def assign_quintile_bins(ic50_values, boundaries):
     return bins
 
 
+BIN_MODES = ('global', 'per_drug_rank', 'per_drug_z', 'random')
+
+
+def compute_bin_labels(ic50_ds, mode='global', seed=42, n_bins=5):
+    """Assign every pair to a supervised-contrastive bin.
+
+    Absolute IC50 varies by orders of magnitude across drugs, so global quintiles
+    may group samples by drug identity rather than by relative sensitivity. This function makes that an experimental variable.
+
+    ``global``          quintiles of LN_IC50 over all pairs. The published
+                        behaviour, and the default.
+    ``per_drug_rank``   equal-mass bins *within each drug*. The controlled
+                        counterpart to ``global``: bin marginals, positives per
+                        anchor and loss scale are unchanged, so the only thing
+                        that differs is which pairs count as positives.
+    ``per_drug_z``      global quintiles of the per-drug z-score. A robustness
+                        check rather than the primary arm -- per-drug LN_IC50 is
+                        skewed, so bins come out unequal, which confounds "IC50
+                        structure vs drug identity" with "bin imbalance".
+    ``random``          shuffled labels with the same marginals. Isolates the
+                        value of IC50 structure from the value of merely having
+                        five groups to contrast.
+
+    Returns (bin_labels[N], report) where ``report`` carries the boundaries the
+    paper reports (bin edges and batch composition).
+    """
+    if mode not in BIN_MODES:
+        raise ValueError(f"Unknown bin_mode {mode!r}; expected one of {BIN_MODES}")
+
+    values = ic50_ds.ic50_values.numpy().astype(np.float64)
+    drug_ids = np.asarray(ic50_ds.drug_ids, dtype=object)
+    percentiles = list(np.linspace(0, 100, n_bins + 1)[1:-1])
+
+    global_boundaries = np.percentile(values, percentiles)
+    report = {
+        'mode': mode,
+        'n_bins': n_bins,
+        'n_pairs': int(values.size),
+        'global_boundaries': global_boundaries.tolist(),
+        'ic50_min': float(values.min()),
+        'ic50_max': float(values.max()),
+        'ic50_mean': float(values.mean()),
+        'ic50_std': float(values.std()),
+    }
+
+    if mode == 'global':
+        labels = np.searchsorted(global_boundaries, values, side='left')
+
+    elif mode == 'random':
+        # Preserve the marginals exactly, destroy the association with IC50.
+        labels = np.searchsorted(global_boundaries, values, side='left')
+        np.random.default_rng(seed).shuffle(labels)
+
+    else:
+        frame = pd.DataFrame({'drug_id': drug_ids, 'y': values})
+        group_sizes = frame.groupby('drug_id').y.size()
+        smallest = int(group_sizes.min())
+        if smallest < n_bins * 10:
+            raise ValueError(
+                f"Per-drug binning needs enough pairs per drug; smallest drug has "
+                f"{smallest} (want >= {n_bins * 10}). Use mode='global'."
+            )
+
+        if mode == 'per_drug_rank':
+            # Average ranks make bins equal-mass within each drug and handle ties.
+            pct = frame.groupby('drug_id').y.rank(method='average', pct=True)
+            labels = np.clip((pct.to_numpy() * n_bins).astype(int), 0, n_bins - 1)
+            per_drug = (
+                frame.groupby('drug_id').y
+                .quantile([p / 100 for p in percentiles])
+                .unstack()
+            )
+            per_drug.columns = [f'b{int(p)}' for p in percentiles]
+        else:  # per_drug_z
+            stats_by_drug = frame.groupby('drug_id').y.agg(['mean', 'std'])
+            # A zero-variance drug cannot be z-scored; leave it at the centre bin.
+            stats_by_drug['std'] = stats_by_drug['std'].replace(0.0, np.nan)
+            centred = (
+                frame.y.to_numpy()
+                - frame.drug_id.map(stats_by_drug['mean']).to_numpy()
+            )
+            scale = frame.drug_id.map(stats_by_drug['std']).to_numpy()
+            z = np.divide(centred, scale, out=np.zeros_like(centred), where=~np.isnan(scale))
+            z_boundaries = np.percentile(z, percentiles)
+            labels = np.searchsorted(z_boundaries, z, side='left')
+            report['z_boundaries'] = z_boundaries.tolist()
+            per_drug = stats_by_drug.rename(columns={'mean': 'mean', 'std': 'std'})
+
+        per_drug['n'] = group_sizes
+        report['per_drug_table'] = per_drug.reset_index().to_dict(orient='records')
+
+    labels = labels.astype(np.int64)
+    counts = np.bincount(labels, minlength=n_bins)
+    report['bin_counts'] = counts.tolist()
+    report['bin_fractions'] = (counts / counts.sum()).round(6).tolist()
+
+    logger.info(f"bin_mode={mode}: counts={counts.tolist()} boundaries={global_boundaries}")
+    return labels, report
+
+
 class IC50SupervisedContrastiveLoss(nn.Module):
     """
     Supervised contrastive loss where positives = same IC50 quintile bin.
@@ -198,7 +310,20 @@ def main():
                         help='Contrastive loss temperature')
     parser.add_argument('--held_out_drugs', type=str, default=None,
                         help='Path to text file with held-out drug IDs to exclude from training')
+    parser.add_argument('--held_out_celllines', type=str, default=None,
+                        help='Path to text file with held-out cell-line IDs to exclude from '
+                             'training (leak-free / inductive NCC pretraining)')
+    parser.add_argument('--reveal_pairs', type=str, default=None,
+                        help='CSV (cellline_id,drug_id) of pairs from held-out cell lines to '
+                             'include anyway (panel-completion experiment)')
+    parser.add_argument('--bin_mode', type=str, default='global', choices=list(BIN_MODES),
+                        help="Supervised-contrastive bin assignment. 'global' is the published "
+                             "behaviour; 'per_drug_rank' bins within each drug; 'random' is the "
+                             "grouping-only control")
+    parser.add_argument('--seed', type=int, default=42)
     args = parser.parse_args()
+
+    set_all_seeds(args.seed)
 
     device = args.device
     output_dir = Path(args.output_dir)
@@ -225,7 +350,13 @@ def main():
     config.device = device
 
     model = ModalitySlotQFormer(config).to(device)
-    model = load_pretrained_weights(model, args.checkpoint, device)
+    # --checkpoint none starts DR-A from random initialisation instead of the
+    # CLRNA (Phase 1) weights. Testing whether the image-based warm start is
+    # needed requires DR-A trained without it.
+    if str(args.checkpoint).lower() in ("none", "", "random", "scratch"):
+        logger.info("Starting DR-A from RANDOM INIT (no CLRNA warm start)")
+    else:
+        model = load_pretrained_weights(model, args.checkpoint, device)
     logger.info(f"Model params: {sum(p.numel() for p in model.parameters()):,}")
 
     # ---- Phase 3 components ----
@@ -260,21 +391,54 @@ def main():
             allowed_drugs = all_drugs - held_out_drugs
             logger.info(f"Held-out drugs: {len(held_out_drugs)}, Training drugs: {len(allowed_drugs)}")
 
+    # Strict / inductive NCC: exclude held-out cell lines from pretraining too,
+    # so test cell lines are unseen at every stage rather than only at fine-tune.
+    allowed_celllines = None
+    if args.held_out_celllines:
+        held_out_path = Path(args.held_out_celllines)
+        if held_out_path.exists():
+            held_out_cls = set(
+                line.strip() for line in held_out_path.open().readlines() if line.strip()
+            )
+            import pandas as _pd
+            all_cls = set(_pd.read_csv(IC50_CSV, usecols=['cellline_id']).cellline_id.astype(str))
+            allowed_celllines = all_cls - held_out_cls
+            logger.info(
+                f"Held-out cell lines: {len(held_out_cls)}, "
+                f"Training cell lines: {len(allowed_celllines)}"
+            )
+        else:
+            raise FileNotFoundError(f"--held_out_celllines file not found: {held_out_path}")
+
+    extra_pairs = None
+    if args.reveal_pairs:
+        if allowed_celllines is None:
+            raise ValueError("--reveal_pairs only makes sense with --held_out_celllines")
+        import pandas as _pd
+        _rev = _pd.read_csv(args.reveal_pairs, dtype=str)
+        extra_pairs = set(zip(_rev.cellline_id, _rev.drug_id))
+        logger.info(f"Revealing {len(extra_pairs)} (cell line, drug) pairs from held-out lines")
+
     ic50_ds = IC50Dataset(IC50_CSV, drug_ds, rna_csv_path=RNA_CSV, rna_dim=256,
-                           add_tissue_ids=True, allowed_drugs=allowed_drugs)
+                           add_tissue_ids=True, allowed_drugs=allowed_drugs,
+                           allowed_celllines=allowed_celllines, extra_pairs=extra_pairs)
     logger.info(f"Total: {len(ic50_ds)} samples, {ic50_ds.num_celllines} cell-lines")
 
-    # Compute IC50 quintile boundaries
-    boundaries = compute_ic50_quintiles(ic50_ds)
-    boundaries_tensor = torch.tensor(boundaries, dtype=torch.float32, device=device)
+    # Assign supervised-contrastive bins. bin_mode='global' reproduces the
+    # published behaviour exactly.
+    bin_labels, bin_report = compute_bin_labels(ic50_ds, mode=args.bin_mode, seed=args.seed)
+    boundaries = np.asarray(bin_report['global_boundaries'])
+    train_ds = BinLabeledIC50Dataset(ic50_ds, bin_labels)
 
     loader = DataLoader(
-        ic50_ds,
+        train_ds,
         batch_size=args.batch_size,
         shuffle=True,
         num_workers=4,
         persistent_workers=True,
         drop_last=True,
+        worker_init_fn=seed_worker,
+        generator=torch_generator(args.seed),
     )
 
     # ---- Freeze irrelevant components ----
@@ -335,6 +499,7 @@ def main():
     history = {
         'contrastive_loss': [], 'recon_loss': [], 'total_loss': [],
         'mean_cosine_sim': [], 'bin_distribution': [],
+        'pos_per_anchor': [], 'frac_anchors_no_positive': [],
     }
 
     for epoch in range(args.epochs):
@@ -343,6 +508,7 @@ def main():
 
         epoch_losses = {'contrastive': 0., 'recon': 0., 'total': 0.}
         epoch_cosine_sims = []
+        epoch_bin_counts, epoch_pos_per_anchor, epoch_zero_pos = [], [], []
         num_batches = 0
 
         pbar = tqdm(loader, desc=f"Phase 3 Epoch {epoch+1}/{args.epochs}")
@@ -360,11 +526,20 @@ def main():
             # Full forward: all 4 tokens → Q-Former → fused [B, D]
             fused = model.qformer(combined, modality_mask=None)  # [B, D]
 
-            # Assign IC50 quintile bins
+            # Bins are precomputed per row and carried in the batch.
             ic50_vals = batch['ic50'].to(device)
-            bins = assign_quintile_bins(ic50_vals, boundaries_tensor)
+            bins = batch['bin_label'].to(device)
 
             loss_contrastive = contrastive_loss_fn(fused, bins)
+
+            # Measure (rather than assume) how many positives each anchor has in the
+            # supervised contrastive loss.
+            with torch.no_grad():
+                bin_counts = torch.bincount(bins, minlength=5)
+                positives_per_anchor = (bin_counts[bins].float() - 1.0)
+                epoch_bin_counts.append(bin_counts.cpu().numpy())
+                epoch_pos_per_anchor.append(positives_per_anchor.mean().item())
+                epoch_zero_pos.append((positives_per_anchor == 0).float().mean().item())
 
             # Collapse detection: mean cosine similarity
             with torch.no_grad():
@@ -445,12 +620,22 @@ def main():
         history['total_loss'].append(epoch_losses['total'])
         history['mean_cosine_sim'].append(float(mean_epoch_cosine))
 
+        mean_pos = float(np.mean(epoch_pos_per_anchor)) if epoch_pos_per_anchor else 0.0
+        frac_zero = float(np.mean(epoch_zero_pos)) if epoch_zero_pos else 0.0
+        history['bin_distribution'].append(
+            np.mean(epoch_bin_counts, axis=0).round(2).tolist() if epoch_bin_counts else []
+        )
+        history['pos_per_anchor'].append(mean_pos)
+        history['frac_anchors_no_positive'].append(frac_zero)
+
         logger.info(
             f"Epoch {epoch+1}/{args.epochs} — "
             f"Total: {epoch_losses['total']:.4f}, "
             f"Contrastive: {epoch_losses['contrastive']:.4f}, "
             f"Reconstruction: {epoch_losses['recon']:.4f}, "
-            f"Mean cosine sim: {mean_epoch_cosine:.4f}"
+            f"Mean cosine sim: {mean_epoch_cosine:.4f}, "
+            f"Positives/anchor: {mean_pos:.1f}, "
+            f"Anchors w/o positive: {frac_zero:.5f}"
         )
 
         # Collapse warning
@@ -473,6 +658,9 @@ def main():
         'history': history,
         'stage': 'phase3',
         'source_checkpoint': args.checkpoint,
+        'bin_mode': args.bin_mode,
+        'seed': args.seed,
+        # Kept populated for every mode so existing loaders keep working.
         'ic50_quintile_boundaries': boundaries.tolist(),
     }
     torch.save(checkpoint, checkpoint_path)
@@ -483,6 +671,13 @@ def main():
     with open(history_path, 'w') as f:
         json.dump(history, f, indent=2)
     logger.info(f"Training history saved to {history_path}")
+
+    # Bin report: the quintile boundaries and batch composition reported in the
+    # paper. Kept out of the checkpoint because the per-drug table is large.
+    bin_report_path = output_dir / 'bin_report.json'
+    with open(bin_report_path, 'w') as f:
+        json.dump(bin_report, f, indent=2)
+    logger.info(f"Bin report saved to {bin_report_path}")
 
     # Print final summary
     logger.info("\n" + "=" * 60)

@@ -1,0 +1,4 @@
+n_celllines_evaluated,n_celllines_with_ordering,per_cellline_spearman_mean,per_cellline_spearman_std,per_cellline_spearman_median,top10_recall_mean,top10_recall_std,arm,seed,regime
+996,702,,,,0.07389558232931728,0.0868993159062957,global_mean,42,ncc
+996,996,0.8506498565573956,0.05075177223290807,0.858872878050331,0.6880522088353414,0.12990505215518885,drug_mean,42,ncc
+996,702,,,,0.07389558232931728,0.0868993159062957,cellline_mean,42,ncc

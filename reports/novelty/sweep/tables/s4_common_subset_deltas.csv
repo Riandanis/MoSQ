@@ -1,0 +1,8 @@
+comparison,n_seeds,delta,ci95,positive
+S4 - DeepCDR,3,0.045,"[+0.0379, +0.0522]",3/3
+S4 - DrugCell,1,0.0879,"single seed, no CI",1/1
+S4 - MoSQ (DR-A),3,-0.0218,"[-0.0246, -0.0190]",0/3
+"S4 - MoSQ, no pretraining",3,0.0121,"[+0.0102, +0.0141]",3/3
+S4 - Standalone MLP,3,0.0171,"[+0.0169, +0.0173]",3/3
+S4 - XGBoost,3,0.015,"[+0.0100, +0.0200]",3/3
+S4 - tCNNS,3,0.0352,"[+0.0306, +0.0398]",3/3
